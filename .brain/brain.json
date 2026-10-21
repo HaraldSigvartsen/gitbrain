@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "project": "gitbrain",
+  "created": "2026-10-21T07:47:54.321Z",
+  "last_reconciled_sha": null,
+  "decisions": [
+    {
+      "id": "D-0001",
+      "title": "Project name \"gitbrain\", npm package scoped",
+      "status": "active",
+      "updated": "2026-10-21"
+    },
+    {
+      "id": "D-0002",
+      "title": "commander is the only runtime dependency",
+      "status": "active",
+      "updated": "2026-10-21"
+    },
+    {
+      "id": "D-0003",
+      "title": "vitest 5 for the dev toolchain",
+      "status": "active",
+      "updated": "2026-10-21"
+    },
+    {
+      "id": "D-0004",
+      "title": "Markdown is the source of truth; brain.json is only an index",
+      "status": "active",
+      "updated": "2026-10-21"
+    }
+  ],
+  "observations": []
+}
