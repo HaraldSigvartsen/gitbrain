@@ -1,0 +1,56 @@
+{
+  "name": "@haraldsigvartsen/gitbrain",
+  "version": "0.1.0",
+  "description": "Self-healing project memory for AI coding agents. Agents write it, git proves it, a scheduled reconciler keeps it true.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Harald Sigvartsen",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HaraldSigvartsen/gitbrain.git"
+  },
+  "bugs": "https://github.com/HaraldSigvartsen/gitbrain/issues",
+  "homepage": "https://github.com/HaraldSigvartsen/gitbrain#readme",
+  "bin": {
+    "brain": "dist/cli.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "dist",
+    "docs",
+    "README.md",
+    "LICENSE",
+    "ROADMAP.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit && vitest run",
+    "test": "vitest run",
+    "format": "prettier --write .",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "memory",
+    "context",
+    "handoff",
+    "decisions",
+    "adr",
+    "claude-code",
+    "cursor",
+    "codex",
+    "session-continuity"
+  ],
+  "dependencies": {
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.0",
+    "vitest": "^5.0.5"
+  }
+}

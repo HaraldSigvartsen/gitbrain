@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# NOTE: .brain/ is intentionally NOT ignored — project memory is meant to be
+# committed, diffed and reviewed. Ignore it per-project if your memory must
+# stay private.
