@@ -18,6 +18,8 @@ export interface ParsedDecision {
   title: string;
   status: DecisionStatus;
   date?: string;
+  /** Repo paths from Context / Choice backticks — used by drift detection. */
+  subjectPaths: string[];
 }
 
 export interface ParsedObservation {
@@ -134,10 +136,20 @@ export function parseDecisionsMarkdown(markdown: string): ParsedDecision[] {
     if (!statusRaw || !DECISION_STATUSES.has(statusRaw as DecisionStatus)) {
       continue;
     }
+    const subjectPaths = new Set<string>();
+    for (const key of ["context", "choice"] as const) {
+      const value = fields.get(key);
+      if (value) {
+        for (const path of extractBacktickPaths(value)) {
+          subjectPaths.add(path);
+        }
+      }
+    }
     const decision: ParsedDecision = {
       id: entry.id,
       title: entry.title,
       status: statusRaw as DecisionStatus,
+      subjectPaths: [...subjectPaths].sort(),
     };
     const date = fields.get("date");
     if (date) {

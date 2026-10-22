@@ -58,12 +58,14 @@ describe("parseDecisionsMarkdown", () => {
       title: "Second decision",
       status: "superseded",
       date: "2026-01-02",
+      subjectPaths: [],
     });
     expect(parsed[1]).toEqual({
       id: "D-0001",
       title: "First decision",
       status: "active",
       date: "2026-01-01",
+      subjectPaths: [],
     });
   });
 
