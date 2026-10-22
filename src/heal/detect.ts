@@ -40,6 +40,20 @@ export interface StaleContextPath {
   detail: string;
 }
 
+export interface ObservationRepointCandidate {
+  observationId: string;
+  title: string;
+  fromPath: string;
+  toPath: string;
+  detail: string;
+}
+
+export interface ContextRepointCandidate {
+  fromPath: string;
+  toPath: string;
+  detail: string;
+}
+
 export interface DriftReport {
   sinceSha: string;
   headSha: string;
@@ -47,6 +61,8 @@ export interface DriftReport {
   capped: boolean;
   closeCandidates: CloseCandidate[];
   supersedeCandidates: SupersedeCandidate[];
+  observationRepoints: ObservationRepointCandidate[];
+  contextRepoints: ContextRepointCandidate[];
   staleContextPaths: StaleContextPath[];
   ledgerMismatches: LedgerMismatch[];
 }
@@ -88,12 +104,41 @@ function pathDeletedInRange(file: FileChange | undefined, path: string): boolean
   return false;
 }
 
-/** Renames are handled in a later unit — do not treat rename sources as deleted. */
-function pathRenamedInRange(file: FileChange | undefined, path: string): boolean {
+/** Do not treat rename sources as deleted or missing — they are re-pointed instead. */
+export function pathRenamedInRange(file: FileChange | undefined, path: string): boolean {
   if (!file) {
     return false;
   }
   return file.status === "renamed" && file.previousPath === path;
+}
+
+export function buildRenameMap(files: FileChange[]): Map<string, string> {
+  const map = new Map<string, string>();
+  for (const file of files) {
+    if (file.status === "renamed" && file.previousPath) {
+      map.set(file.previousPath, file.path);
+    }
+  }
+  return map;
+}
+
+/** Follow rename chains within the reconciled range (A→B→C). */
+export function resolveRenameTarget(fromPath: string, renames: Map<string, string>): string | null {
+  let current = fromPath;
+  let next = renames.get(current);
+  if (!next) {
+    return null;
+  }
+  const visited = new Set<string>([fromPath]);
+  while (next) {
+    if (visited.has(next)) {
+      break;
+    }
+    visited.add(next);
+    current = next;
+    next = renames.get(current);
+  }
+  return current === fromPath ? null : current;
 }
 
 function describeChange(file: FileChange, path: string): string {
@@ -173,13 +218,30 @@ export function detectDrift(
   brain: ParsedBrain,
 ): DriftReport {
   const changes = changeByPath(changeSet.files);
+  const renames = buildRenameMap(changeSet.files);
   const closeCandidates: CloseCandidate[] = [];
   const supersedeCandidates: SupersedeCandidate[] = [];
+  const observationRepoints: ObservationRepointCandidate[] = [];
+  const contextRepoints: ContextRepointCandidate[] = [];
   const staleContextPaths: StaleContextPath[] = [];
 
   for (const observation of brain.observations) {
     if (observation.status !== "open" || observation.where.length === 0) {
       continue;
+    }
+    for (const wherePath of observation.where) {
+      const toPath = resolveRenameTarget(wherePath, renames);
+      if (!toPath) {
+        continue;
+      }
+      const detail = `${wherePath} was renamed to ${toPath}`;
+      observationRepoints.push({
+        observationId: observation.id,
+        title: observation.title,
+        fromPath: wherePath,
+        toPath,
+        detail,
+      });
     }
     const drift = pathsWithDrift(observation.where, changes);
     if (!drift) {
@@ -212,11 +274,22 @@ export function detectDrift(
   }
 
   const seenStale = new Set<string>();
+  const seenContextRepoint = new Set<string>();
   for (const contextPath of brain.contextPaths) {
     if (seenStale.has(contextPath)) {
       continue;
     }
     const file = changes.get(contextPath);
+    const renamedTo = resolveRenameTarget(contextPath, renames);
+    if (renamedTo && !seenContextRepoint.has(contextPath)) {
+      seenContextRepoint.add(contextPath);
+      contextRepoints.push({
+        fromPath: contextPath,
+        toPath: renamedTo,
+        detail: file ? describeChange(file, contextPath) : `${contextPath} was renamed to ${renamedTo}`,
+      });
+      continue;
+    }
     if (pathDeletedInRange(file, contextPath)) {
       seenStale.add(contextPath);
       staleContextPaths.push({
@@ -240,6 +313,10 @@ export function detectDrift(
   staleContextPaths.sort((a, b) => a.path.localeCompare(b.path));
   closeCandidates.sort((a, b) => a.observationId.localeCompare(b.observationId));
   supersedeCandidates.sort((a, b) => a.decisionId.localeCompare(b.decisionId));
+  observationRepoints.sort((a, b) =>
+    a.observationId.localeCompare(b.observationId) || a.fromPath.localeCompare(b.fromPath),
+  );
+  contextRepoints.sort((a, b) => a.fromPath.localeCompare(b.fromPath));
 
   return {
     sinceSha: changeSet.sinceSha,
@@ -248,6 +325,8 @@ export function detectDrift(
     capped: changeSet.capped,
     closeCandidates,
     supersedeCandidates,
+    observationRepoints,
+    contextRepoints,
     staleContextPaths,
     ledgerMismatches: brain.ledgerMismatches,
   };

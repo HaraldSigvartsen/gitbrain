@@ -50,7 +50,11 @@ function formatChangeLine(change: ApplyChange): string[] {
   const action =
     change.kind === "observation_closed"
       ? "→ closed"
-      : "→ superseded";
+      : change.kind === "decision_superseded"
+        ? "→ superseded"
+        : change.kind === "observation_repointed"
+          ? "→ re-pointed"
+          : "→ re-pointed";
   const head = padTitle(change.id, change.title, ACTION_COLUMN_WIDTH) + action;
   return [head, `            ${change.detail}`];
 }
