@@ -51,6 +51,8 @@ status, added, removed, previousPath? }, touchedPaths }`
       ZCode, OpenCode; plus optional post-session hook scripts
 - [x] `brain lint`: validate markdown entries ↔ ledger consistency (duplicate IDs,
       missing registrations, broken sequence)
+- [x] `brain init --agents`: marker-delimited snippets for Cursor, Codex, Claude (and
+      ZCode/OpenCode via `AGENTS.md`); idempotent re-run updates without duplicating
 - [ ] `examples/`: a small fake project with a brain, before and after heal
 
 ## v0.6 — `brain ask` (local, offline)

@@ -29,6 +29,8 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 - `src/brain/lint.ts` — `lintBrain`: markdown ↔ ledger validation (duplicates, sequence, required fields).
 - `src/commands/lint.ts` — `runLint`, human/JSON formatters; non-zero exit when issues exist.
 - `src/git/commit-brain.ts` — `commitBrainMemory`: stage only heal-written `.brain/` paths, conventional commit (never pushes).
+- `src/agents/instruction.ts` — canonical paste-ready instruction body + HTML comment markers.
+- `src/agents/emit.ts` — `emitAgentInstructions` / `parseAgentToolsList` for `brain init --agents`.
 
 ## Conventions
 
@@ -42,6 +44,6 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 ## Current focus
 
 **0.2.0** ships `brain heal` end-to-end (collector, detect, apply, `--commit`, install-from-GitHub test).
-Dogfood heal done (`last_reconciled_sha` set). **v0.5** `brain lint` shipped; next: `docs/agents.md`.
+Dogfood heal done (`last_reconciled_sha` set). **v0.5** `brain lint` + `docs/agents.md` shipped; next: `brain init --agents` then examples/demo.
 
 _Created 2026-10-21 by `brain init`._

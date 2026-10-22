@@ -3,6 +3,7 @@ import { Command } from "commander";
 import { resolve } from "node:path";
 import { formatHealHumanOutput, healResultToJson, runHeal } from "./commands/heal.js";
 import { formatLintHumanOutput, lintResultToJson, runLint } from "./commands/lint.js";
+import { parseAgentToolsList } from "./agents/emit.js";
 import { runInit } from "./commands/init.js";
 import { runStatus } from "./commands/status.js";
 import { VERSION } from "./version.js";
@@ -21,14 +22,26 @@ program
   .command("init")
   .description("Create a .brain/ memory directory in a project (refuses if one already exists).")
   .argument("[dir]", "project directory", ".")
-  .action((dir: string) => {
-    const result = runInit(resolve(dir));
-    console.log(`\n🧠 Created ${result.created.length} memory files in ${result.dir}`);
-    for (const name of result.created) console.log(`   · ${name}`);
+  .option(
+    "--agents <tools>",
+    "comma-separated agent tools to scaffold (cursor, codex, claude, zcode, opencode)",
+  )
+  .action((dir: string, options: { agents?: string }) => {
+    const agents = options.agents ? parseAgentToolsList(options.agents) : undefined;
+    const result = runInit(resolve(dir), undefined, { agents });
+    if (result.created.length) {
+      console.log(`\n🧠 Created ${result.created.length} memory files in ${result.dir}`);
+      for (const name of result.created) console.log(`   · ${name}`);
+    } else if (result.agentFiles.length) {
+      console.log(`\n🧠 ${result.dir} already exists — updated agent snippets only.`);
+    }
+    for (const file of result.agentFiles) {
+      console.log(`   · ${file.path} (${file.action})`);
+    }
     console.log(`
 Next steps:
   1. Commit .brain/ — memory is meant to be shared, diffed and reviewed.
-  2. Point your agents at it (see "Tell your agents" in the README).
+  2. Point your agents at it (see docs/agents.md or use \`brain init --agents\`).
   3. Run \`brain status\` any time to see the ledger.
 `);
   });
