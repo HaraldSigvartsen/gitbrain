@@ -43,6 +43,7 @@ npm install -g github:HaraldSigvartsen/gitbrain
 cd your-project
 brain init
 brain status
+brain heal --dry-run   # preview drift; run `brain heal` on a schedule (or `brain heal --commit`)
 ```
 
 Commit the `.brain/` directory — memory is meant to be shared, diffed and reviewed like code. (Publishing to the npm registry as `@haraldsigvartsen/gitbrain` is on the [roadmap](ROADMAP.md); installing from GitHub works today.)
@@ -88,26 +89,23 @@ The IDs are the trick. Because every entry is addressable and every observation 
 
 ## How healing works
 
-`brain heal` (shipping in v0.4 — see the [roadmap](ROADMAP.md)) runs on a schedule and does four things:
+`brain heal` runs on a schedule (or after big refactors) and does four things. Example output from a small fixture repo where an observation still pointed at a deleted file:
 
 ```
 $ brain heal
-Reconciling .brain against git since a1b2c3d (37 commits)…
+Reconciling .brain against git since repo start (2 commits)…
 
-  ✓ O-0004  "Race in checkout queue consumer"   → closed
-            src/checkout/queue.ts was deleted in f00d1e5
-  ✓ D-0007  "Sessions in Durable Objects"       → superseded by D-0011
-            config/session.ts now uses Workers KV
-  ⚠ CONTEXT.md "Architecture map"               → stale
-            references src/legacy/, removed last week
-  + CONTEXT.md draft updated from the diff (ready to review)
+  ✓ O-0001  "Race in checkout queue"                → closed
+            src/checkout/queue.ts was deleted in the reconciled range
 
-Committed memory drift report → .brain/reports/2026-10-21.md
+Wrote memory drift report → .brain/reports/2026-10-22.md
 ```
 
+Flags: `--dry-run` (print the report, write nothing), `--json` (machine-readable), `--commit` (commit only `.brain/` changes locally — never pushes).
+
 1. **Collect** — a structured change set from `git log` / `git diff` since the last reconciled SHA (first run: capped whole-history summary).
-2. **Detect** — match ledger entries and CONTEXT.md path references against the change set. Deleted/heavily-rewritten code that an observation points at makes it a close candidate; replaced decision subject code makes it a supersede candidate. Conservative by default: propose, don't silently rewrite.
-3. **Apply** — update ledger statuses, annotate entries in the markdown (original text is kept, a `healed:` line is added), write a dated drift report.
+2. **Detect** — match ledger entries and CONTEXT.md path references against the change set. Deleted/heavily-rewritten code that an observation points at makes it a close candidate; replaced decision subject code makes it a supersede candidate; renames can re-point `Where:` paths. Conservative by default: propose, don't silently rewrite.
+3. **Apply** — update ledger statuses, annotate entries in the markdown (original text is kept, a `> healed <date> — <reason>` line is added), write a dated drift report.
 4. **Record** — advance `last_reconciled_sha`. Idempotent: running twice changes nothing the second time.
 
 Every change lands as a reviewable git commit. Your memory's edit history _is_ its audit trail.
@@ -149,12 +147,10 @@ gitbrain is built in public by a scheduled AI agent — one roadmap unit per run
 
 ## Roadmap
 
-- **v0.2** — git diff collector (structured change sets, rename-aware)
-- **v0.3** — drift detector (pure DriftReport, no writes)
-- **v0.4** — `brain heal` (apply, annotate, drift reports, idempotent)
-- **v0.5** — agent emitter recipes + `brain lint` (format validation)
+- **v0.2–v0.4** — shipped in **0.2.0**: git change-set collector, drift detector, `brain heal` (`--dry-run`, `--json`, `--commit`, idempotent)
+- **v0.5** — agent emitter recipes + `brain lint` (format validation) + examples
 - **v0.6** — `brain ask` (local, offline retrieval over one or many brains)
-- **v0.7** — npm publish + launch
+- **v0.7** — npm publish + launch (demo GIF, social preview)
 
 Details and acceptance criteria per unit: [ROADMAP.md](ROADMAP.md).
 

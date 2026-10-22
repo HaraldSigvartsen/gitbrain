@@ -4,7 +4,7 @@
 > keep it under a screenful. Detail belongs in CONTEXT.md or DECISIONS.md.
 
 - **Date:** 2026-10-22
-- **What we did:** `test/install-pack.test.ts` — `npm pack` + global install into a tmp prefix; `brain --version`, `init`, `heal --dry-run` verified. ROADMAP install-path checkbox.
-- **Where we stopped:** PR for `agent/install-path`.
-- **Next steps:** README honesty pass + bump 0.2.0; dogfood heal on this repo.
-- **Open threads:** README still says "shipping in v0.4" for heal.
+- **What we did:** README honesty pass — real `brain heal` example output, roadmap wording; version **0.2.0**; added CHANGELOG.md.
+- **Where we stopped:** PR for `agent/readme-honesty-v0.2`.
+- **Next steps:** Dogfood — run `brain heal` on this repo and merge `.brain/` changes.
+- **Open threads:** v0.5 lint + `docs/agents.md` + examples.
