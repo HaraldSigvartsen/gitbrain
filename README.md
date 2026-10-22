@@ -110,6 +110,8 @@ Flags: `--dry-run` (print the report, write nothing), `--json` (machine-readable
 
 Every change lands as a reviewable git commit. Your memory's edit history _is_ its audit trail.
 
+Walkthrough: [`examples/demo-project/`](examples/demo-project/) (before/after snapshots). From this repo after `npm run build`, run `./scripts/demo.sh` for a live terminal demo, or read [`demo-transcript.txt`](examples/demo-project/demo-transcript.txt). Optional GIF: `./scripts/demo.sh --vhs` when [Charm VHS](https://github.com/charmbracelet/vhs) is installed.
+
 ## Tell your agents
 
 Paste this into whatever instructions your agents already read (CLAUDE.md, AGENTS.md, cursor rules, system prompt — the format is tool-agnostic):

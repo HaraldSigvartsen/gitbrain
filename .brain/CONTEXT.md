@@ -46,6 +46,6 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 
 ## Current focus
 
-**0.2.0** ships `brain heal` end-to-end. **v0.5** adds lint, agent emitters, scheduling, and the `examples/demo-project/` walkthrough. Next: `scripts/demo.sh` terminal recording.
+**0.2.0** ships `brain heal` end-to-end. **v0.5** adds lint, agent emitters, scheduling, `examples/demo-project/`, and `scripts/demo.sh` (transcript + optional VHS). Next: `brain ask` (v0.6).
 
 _Created 2026-10-21 by `brain init`._

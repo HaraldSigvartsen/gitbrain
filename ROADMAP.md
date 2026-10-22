@@ -56,6 +56,7 @@ status, added, removed, previousPath? }, touchedPaths }`
 - [x] Scheduling recipes: `examples/github-action/heal.yml` (opens a PR on drift) and
       `docs/scheduling.md` (cron + launchd one-liners)
 - [x] `examples/`: a small fake project with a brain, before and after heal
+- [x] `scripts/demo.sh`: reproducible terminal demo (committed transcript; optional VHS GIF via `--vhs`)
 
 ## v0.6 — `brain ask` (local, offline)
 

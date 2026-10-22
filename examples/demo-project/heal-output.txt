@@ -1,8 +1,6 @@
-
 Reconciling .brain against git since repo start (2 commits)…
 
   ✓ O-0001  "Race in checkout queue"                → closed
             src/checkout/queue.ts was deleted in the reconciled range
 
 Wrote memory drift report → .brain/reports/2026-10-22.md
-
