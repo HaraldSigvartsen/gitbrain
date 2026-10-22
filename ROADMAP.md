@@ -47,7 +47,7 @@ See CONTRIBUTING.md for how to work on one.
 
 ## v0.5 — agent emitters & validation
 
-- [ ] `docs/agents.md`: paste-ready session instructions for Claude Code, Codex, Cursor,
+- [x] `docs/agents.md`: paste-ready session instructions for Claude Code, Codex, Cursor,
       ZCode, OpenCode; plus optional post-session hook scripts
 - [x] `brain lint`: validate markdown entries ↔ ledger consistency (duplicate IDs,
       missing registrations, broken sequence)

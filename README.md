@@ -130,6 +130,9 @@ IDs are sequential and never reused. If memory conflicts with code,
 the code wins — say so in your session summary.
 ```
 
+Per-tool paste locations (Claude Code, Codex, Cursor, ZCode, OpenCode, Copilot), an
+optional `brain lint` session-end hook, and a worked example: [docs/agents.md](docs/agents.md).
+
 ## Compared to existing tools
 
 |                                     | File-based (git-diffable) | Any agent tool | Grounded in git history | **Repairs stale memory** | Reviewable changes |
