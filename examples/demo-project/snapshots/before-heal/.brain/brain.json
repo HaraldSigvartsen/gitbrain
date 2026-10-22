@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "project": "acme-checkout",
+  "created": "2026-10-22T21:40:22.113Z",
+  "last_reconciled_sha": null,
+  "decisions": [],
+  "observations": [
+    {
+      "id": "O-0001",
+      "title": "Race in checkout queue",
+      "status": "open",
+      "updated": "2026-10-20"
+    }
+  ]
+}
