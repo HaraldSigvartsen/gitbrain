@@ -2,6 +2,7 @@
 import { Command } from "commander";
 import { resolve } from "node:path";
 import { formatHealHumanOutput, healResultToJson, runHeal } from "./commands/heal.js";
+import { formatLintHumanOutput, lintResultToJson, runLint } from "./commands/lint.js";
 import { runInit } from "./commands/init.js";
 import { runStatus } from "./commands/status.js";
 import { VERSION } from "./version.js";
@@ -47,6 +48,24 @@ program
       return;
     }
     console.log("\n" + formatHealHumanOutput(result));
+  });
+
+program
+  .command("lint")
+  .description("Validate .brain/ markdown entries against brain.json (format and ledger consistency).")
+  .argument("[dir]", "project directory", ".")
+  .option("--json", "emit machine-readable JSON on stdout")
+  .action((dir: string, options: { json?: boolean }) => {
+    const projectDir = resolve(dir);
+    const result = runLint(projectDir);
+    if (options.json) {
+      console.log(JSON.stringify(lintResultToJson(result), null, 2));
+    } else {
+      console.log("\n" + formatLintHumanOutput(result));
+    }
+    if (result.errorCount > 0) {
+      process.exit(1);
+    }
   });
 
 program

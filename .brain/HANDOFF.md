@@ -4,7 +4,7 @@
 > keep it under a screenful. Detail belongs in CONTEXT.md or DECISIONS.md.
 
 - **Date:** 2026-10-22
-- **What we did:** First `brain heal` on this repo — advanced `last_reconciled_sha`, drift report for stale CONTEXT backtick paths (`brain.json`, `docs/agents.md` not at repo root).
-- **Where we stopped:** PR for `agent/dogfood-heal`.
-- **Next steps:** P1 `brain lint` and `docs/agents.md` (will clear one stale path); consider tightening CONTEXT path extraction for prose backticks.
+- **What we did:** Shipped `brain lint` (markdown ↔ ledger validation, `--json`, exit 1 on errors).
+- **Where we stopped:** PR branch `agent/brain-lint` ready to push.
+- **Next steps:** P1 `docs/agents.md`; optional README mention of `brain lint`.
 - **Open threads:** Heal flags any backtick path in CONTEXT/HANDOFF, not only architecture-map bullets.
