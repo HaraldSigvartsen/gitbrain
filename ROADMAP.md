@@ -41,6 +41,9 @@ See CONTRIBUTING.md for how to work on one.
 - [x] Idempotency tests: heal → heal again → zero changes the second time
 - [x] `brain heal --commit`: optionally commit only `.brain/` changes with a conventional
       message (never stages or commits other files, never pushes)
+- [x] Global install path: `npm pack` tarball installs with a working `brain` bin (`--version`,
+      `init`, `heal --dry-run`); `dist/` shipped in the package so install works when lifecycle
+      scripts are skipped
 
 ## v0.5 — agent emitters & validation
 
