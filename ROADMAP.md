@@ -39,6 +39,8 @@ See CONTRIBUTING.md for how to work on one.
       `.brain/reports/<date>.md`, advance `last_reconciled_sha`
 - [x] `brain heal [dir]` command with `--dry-run` (print the report, write nothing)
 - [x] Idempotency tests: heal → heal again → zero changes the second time
+- [x] `brain heal --commit`: optionally commit only `.brain/` changes with a conventional
+      message (never stages or commits other files, never pushes)
 
 ## v0.5 — agent emitters & validation
 
