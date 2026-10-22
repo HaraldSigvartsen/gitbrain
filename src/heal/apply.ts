@@ -13,7 +13,11 @@ import { readLedger } from "../commands/status.js";
 import type { DriftReport } from "./detect.js";
 
 export interface ApplyChange {
-  kind: "observation_closed" | "decision_superseded";
+  kind:
+    | "observation_closed"
+    | "decision_superseded"
+    | "observation_repointed"
+    | "context_repointed";
   id: string;
   title: string;
   detail: string;
@@ -28,10 +32,16 @@ export interface ApplyResult {
   changes: ApplyChange[];
   wroteDecisions: boolean;
   wroteObservations: boolean;
+  wroteContext: boolean;
   wroteLedger: boolean;
 }
 
 const ENTRY_HEADING = /^## ((?:D|O)-\d{4}) — /;
+
+interface ObservationRepointBatch {
+  title: string;
+  details: Array<{ fromPath: string; toPath: string; detail: string }>;
+}
 
 function healAnnotationLine(date: string, detail: string): string {
   return `> healed ${date} — ${detail}`;
@@ -57,6 +67,38 @@ function setStatusInLines(lines: string[], status: string): string[] {
     const suffix = comment ? ` ${comment[0]}` : "";
     return `- **Status:** ${status}${suffix}`;
   });
+}
+
+function repointWhereInLines(lines: string[], fromPath: string, toPath: string): string[] {
+  return lines.map((line) => {
+    const match = /^\s*-\s*\*\*Where:\*\*\s*(.+)$/u.exec(line);
+    if (!match) {
+      return line;
+    }
+    const oldTick = `\`${fromPath}\``;
+    if (!match[1].includes(oldTick)) {
+      return line;
+    }
+    const value = match[1].replaceAll(oldTick, `\`${toPath}\``);
+    return `- **Where:** ${value}`;
+  });
+}
+
+function addHealAnnotationOnly(
+  lines: string[],
+  date: string,
+  detail: string,
+): { lines: string[]; changed: boolean } {
+  if (entryHasHealAnnotation(lines, detail)) {
+    return { lines, changed: false };
+  }
+  const annotation = healAnnotationLine(date, detail);
+  const trimmed = [...lines];
+  while (trimmed.length > 0 && trimmed[trimmed.length - 1] === "") {
+    trimmed.pop();
+  }
+  trimmed.push("", annotation);
+  return { lines: trimmed, changed: true };
 }
 
 function patchEntryBlock(
@@ -164,7 +206,13 @@ function formatReport(report: DriftReport, healDate: string, changes: ApplyChang
     lines.push("## Applied changes", "");
     for (const change of changes) {
       const label =
-        change.kind === "observation_closed" ? "Observation closed" : "Decision superseded";
+        change.kind === "observation_closed"
+          ? "Observation closed"
+          : change.kind === "decision_superseded"
+            ? "Decision superseded"
+            : change.kind === "observation_repointed"
+              ? "Observation re-pointed"
+              : "CONTEXT re-pointed";
       lines.push(`- **${change.id}** — ${change.title} (${label})`, `  - ${change.detail}`, "");
     }
   } else {
@@ -215,8 +263,83 @@ export function applyDriftReport(
   let observationsMd = readBrainFile(projectDir, OBSERVATIONS_FILE);
   let decisionsChanged = false;
   let observationsChanged = false;
+  let contextChanged = false;
   let ledgerChanged = false;
+  let contextMd = readBrainFile(projectDir, CONTEXT_FILE);
   let nextLedger: Ledger = { ...ledger, decisions: [...ledger.decisions], observations: [...ledger.observations] };
+
+  const repointedObservations = new Map<string, ObservationRepointBatch>();
+  for (const candidate of report.observationRepoints) {
+    let batch = repointedObservations.get(candidate.observationId);
+    if (!batch) {
+      batch = { title: candidate.title, details: [] };
+      repointedObservations.set(candidate.observationId, batch);
+    }
+    batch.details.push(candidate);
+  }
+
+  for (const [observationId, batch] of repointedObservations) {
+    const detail = batch.details.map((d) => d.detail).join("; ");
+    const patched = patchMarkdownByEntryId(observationsMd, observationId, (lines) => {
+      let nextLines = lines;
+      let changed = false;
+      for (const item of batch.details) {
+        const repointed = repointWhereInLines(nextLines, item.fromPath, item.toPath);
+        if (repointed.some((line, i) => line !== nextLines[i])) {
+          changed = true;
+          nextLines = repointed;
+        }
+      }
+      const annotated = addHealAnnotationOnly(nextLines, healDate, detail);
+      if (annotated.changed) {
+        changed = true;
+        nextLines = annotated.lines;
+      }
+      return { lines: nextLines, changed };
+    });
+    if (patched.changed) {
+      observationsChanged = true;
+      observationsMd = patched.markdown;
+    }
+    const ledgerPatch = touchLedgerEntry(nextLedger.observations, observationId, healDate);
+    if (ledgerPatch.changed) {
+      ledgerChanged = true;
+      nextLedger = { ...nextLedger, observations: ledgerPatch.entries };
+    }
+    if (patched.changed || ledgerPatch.changed) {
+      changes.push({
+        kind: "observation_repointed",
+        id: observationId,
+        title: batch.title,
+        detail,
+      });
+    }
+  }
+
+  const contextRepointDetails: string[] = [];
+  for (const candidate of report.contextRepoints) {
+    const tickFrom = `\`${candidate.fromPath}\``;
+    const tickTo = `\`${candidate.toPath}\``;
+    if (contextMd.includes(tickFrom)) {
+      contextMd = contextMd.replaceAll(tickFrom, tickTo);
+      contextChanged = true;
+      contextRepointDetails.push(candidate.detail);
+    }
+  }
+  if (contextRepointDetails.length > 0) {
+    const detail = contextRepointDetails.join("; ");
+    const annotation = healAnnotationLine(healDate, detail);
+    if (!contextMd.includes(annotation)) {
+      contextMd = `${contextMd.trimEnd()}\n\n${annotation}\n`;
+      contextChanged = true;
+    }
+    changes.push({
+      kind: "context_repointed",
+      id: "CONTEXT.md",
+      title: "path references",
+      detail,
+    });
+  }
 
   for (const candidate of report.closeCandidates) {
     const detail = candidate.detail;
@@ -299,6 +422,9 @@ export function applyDriftReport(
     if (observationsChanged) {
       writeFileSync(join(dir, OBSERVATIONS_FILE), observationsMd, "utf8");
     }
+    if (contextChanged) {
+      writeFileSync(join(dir, CONTEXT_FILE), contextMd, "utf8");
+    }
     if (ledgerChanged) {
       writeFileSync(join(dir, LEDGER_FILE), JSON.stringify(nextLedger, null, 2) + "\n", "utf8");
     }
@@ -328,8 +454,28 @@ export function applyDriftReport(
     changes,
     wroteDecisions: decisionsChanged,
     wroteObservations: observationsChanged,
+    wroteContext: contextChanged,
     wroteLedger: ledgerChanged,
   };
+}
+
+function touchLedgerEntry(
+  entries: LedgerEntry[],
+  id: string,
+  date: string,
+): { entries: LedgerEntry[]; changed: boolean } {
+  let changed = false;
+  const next = entries.map((entry) => {
+    if (entry.id !== id) {
+      return entry;
+    }
+    if (entry.updated === date) {
+      return entry;
+    }
+    changed = true;
+    return { ...entry, updated: date };
+  });
+  return { entries: next, changed };
 }
 
 function readBrainFile(projectDir: string, fileName: string): string {

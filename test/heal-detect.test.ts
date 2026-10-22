@@ -68,7 +68,7 @@ describe("detectDrift", () => {
     expect(report.supersedeCandidates).toEqual([]);
   });
 
-  it("does not close observations for rename sources (handled in a later unit)", () => {
+  it("proposes re-pointing an observation Where path when the file was renamed", () => {
     const repo = tmpRepo();
     writeFileSync(join(repo, "old.ts"), "a\n");
     const base = commitAll(repo, "seed");
@@ -93,6 +93,46 @@ describe("detectDrift", () => {
     );
 
     expect(report.closeCandidates).toEqual([]);
+    expect(report.observationRepoints).toEqual([
+      {
+        observationId: "O-0001",
+        title: "Issue in old file",
+        fromPath: "old.ts",
+        toPath: "new.ts",
+        detail: "old.ts was renamed to new.ts",
+      },
+    ]);
+  });
+
+  it("proposes re-pointing CONTEXT paths instead of marking them stale after a rename", () => {
+    const repo = tmpRepo();
+    mkdirSync(join(repo, "src"), { recursive: true });
+    writeFileSync(join(repo, "src", "old.ts"), "a\n");
+    const base = commitAll(repo, "seed");
+    execFileSync("git", ["mv", join(repo, "src", "old.ts"), join(repo, "src", "new.ts")], {
+      cwd: repo,
+    });
+    commitAll(repo, "rename");
+
+    const changeSet = collectChangeSet(repo, base);
+    const report = detectDrift(
+      repo,
+      changeSet,
+      brain({
+        observations: [],
+        decisions: [],
+        contextPaths: ["src/old.ts"],
+      }),
+    );
+
+    expect(report.staleContextPaths).toEqual([]);
+    expect(report.contextRepoints).toEqual([
+      {
+        fromPath: "src/old.ts",
+        toPath: "src/new.ts",
+        detail: "src/old.ts was renamed to src/new.ts",
+      },
+    ]);
   });
 
   it("proposes superseding an active decision when a subject path was heavily rewritten", () => {

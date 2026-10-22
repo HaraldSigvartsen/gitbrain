@@ -3,7 +3,13 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { BRAIN_DIR, DECISIONS_FILE, LEDGER_FILE, OBSERVATIONS_FILE } from "../src/brain.js";
+import {
+  BRAIN_DIR,
+  CONTEXT_FILE,
+  DECISIONS_FILE,
+  LEDGER_FILE,
+  OBSERVATIONS_FILE,
+} from "../src/brain.js";
 import { parseBrain } from "../src/brain/parse.js";
 import { runInit } from "../src/commands/init.js";
 import { readLedger } from "../src/commands/status.js";
@@ -129,6 +135,76 @@ describe("applyDriftReport", () => {
     expect(result.wroteObservations).toBe(true);
     expect(readFileSync(join(repo, BRAIN_DIR, OBSERVATIONS_FILE), "utf8")).toBe(beforeObs);
     expect(readLedger(repo).last_reconciled_sha).toBeNull();
+  });
+
+  it("re-points observation Where paths and annotates without closing", () => {
+    const repo = tmpRepo();
+    runInit(repo);
+    writeFileSync(
+      join(repo, BRAIN_DIR, OBSERVATIONS_FILE),
+      `# proj — observations
+
+## O-0001 — Issue in old file
+- **Priority:** IMPORTANT
+- **Status:** open
+- **Where:** \`old.ts\`
+- **Found:** 2026-01-01
+- **Detail:** Still relevant
+
+---
+`,
+      "utf8",
+    );
+    const ledger = readLedger(repo);
+    ledger.observations = [
+      { id: "O-0001", title: "Issue in old file", status: "open", updated: "2026-01-01" },
+    ];
+    writeFileSync(join(repo, BRAIN_DIR, LEDGER_FILE), JSON.stringify(ledger, null, 2) + "\n", "utf8");
+
+    writeFileSync(join(repo, "old.ts"), "a\n");
+    const base = commitAll(repo, "seed");
+    execFileSync("git", ["mv", "old.ts", "new.ts"], { cwd: repo });
+    commitAll(repo, "rename");
+
+    const report = detectDrift(repo, collectChangeSet(repo, base), parseBrain(repo));
+    const result = applyDriftReport(repo, report, { now: new Date("2026-10-24T00:00:00.000Z") });
+
+    expect(result.changes[0].kind).toBe("observation_repointed");
+    const obs = readFileSync(join(repo, BRAIN_DIR, OBSERVATIONS_FILE), "utf8");
+    expect(obs).toContain("- **Status:** open");
+    expect(obs).toContain("- **Where:** `new.ts`");
+    expect(obs).toContain("> healed 2026-10-24 — old.ts was renamed to new.ts");
+    expect(readLedger(repo).observations[0].status).toBe("open");
+  });
+
+  it("re-points CONTEXT.md backtick paths after a rename", () => {
+    const repo = tmpRepo();
+    runInit(repo);
+    const contextPath = join(repo, BRAIN_DIR, CONTEXT_FILE);
+    writeFileSync(
+      contextPath,
+      `# proj — context
+
+See \`src/old.ts\` for the module.
+
+`,
+      "utf8",
+    );
+    mkdirSync(join(repo, "src"), { recursive: true });
+    writeFileSync(join(repo, "src", "old.ts"), "x\n");
+    const base = commitAll(repo, "seed");
+    execFileSync("git", ["mv", join(repo, "src", "old.ts"), join(repo, "src", "new.ts")], {
+      cwd: repo,
+    });
+    commitAll(repo, "rename");
+
+    const report = detectDrift(repo, collectChangeSet(repo, base), parseBrain(repo));
+    applyDriftReport(repo, report, { now: new Date("2026-10-24T00:00:00.000Z") });
+
+    const context = readFileSync(contextPath, "utf8");
+    expect(context).toContain("`src/new.ts`");
+    expect(context).not.toContain("`src/old.ts`");
+    expect(context).toContain("> healed 2026-10-24 — src/old.ts was renamed to src/new.ts");
   });
 
   it("supersedes a decision and records it in the drift report", () => {
