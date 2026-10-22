@@ -4,7 +4,7 @@
 > keep it under a screenful. Detail belongs in CONTEXT.md or DECISIONS.md.
 
 - **Date:** 2026-10-22
-- **What we did:** README honesty pass — real `brain heal` example output, roadmap wording; version **0.2.0**; added CHANGELOG.md.
-- **Where we stopped:** PR for `agent/readme-honesty-v0.2`.
-- **Next steps:** Dogfood — run `brain heal` on this repo and merge `.brain/` changes.
-- **Open threads:** v0.5 lint + `docs/agents.md` + examples.
+- **What we did:** First `brain heal` on this repo — advanced `last_reconciled_sha`, drift report for stale CONTEXT backtick paths (`brain.json`, `docs/agents.md` not at repo root).
+- **Where we stopped:** PR for `agent/dogfood-heal`.
+- **Next steps:** P1 `brain lint` and `docs/agents.md` (will clear one stale path); consider tightening CONTEXT path extraction for prose backticks.
+- **Open threads:** Heal flags any backtick path in CONTEXT/HANDOFF, not only architecture-map bullets.

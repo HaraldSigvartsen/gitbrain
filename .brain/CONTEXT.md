@@ -40,6 +40,6 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 ## Current focus
 
 **0.2.0** ships `brain heal` end-to-end (collector, detect, apply, `--commit`, install-from-GitHub test).
-Next: dogfood heal on this repo; then v0.5 `brain lint` and `docs/agents.md`.
+Dogfood heal done (`last_reconciled_sha` set). Next: v0.5 `brain lint` and `docs/agents.md`.
 
 _Created 2026-10-21 by `brain init`._
