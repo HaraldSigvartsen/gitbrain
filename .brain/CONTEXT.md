@@ -32,6 +32,7 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 - `src/agents/instruction.ts` — canonical paste-ready instruction body + HTML comment markers.
 - `src/agents/emit.ts` — `emitAgentInstructions` / `parseAgentToolsList` for `brain init --agents`.
 - `examples/github-action/heal.yml` — copy-paste workflow: scheduled `brain heal` + PR on drift.
+- `examples/demo-project/` — scripted drift story with before/after snapshots and `build-history.sh`.
 - `docs/scheduling.md` — cron, launchd, and CI scheduling notes.
 
 ## Conventions
@@ -45,6 +46,6 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 
 ## Current focus
 
-**0.2.0** ships `brain heal` end-to-end. **v0.5** adds `brain lint`, `docs/agents.md`, `brain init --agents`, and scheduling examples. Next: `examples/demo-project/` and demo recording.
+**0.2.0** ships `brain heal` end-to-end. **v0.5** adds lint, agent emitters, scheduling, and the `examples/demo-project/` walkthrough. Next: `scripts/demo.sh` terminal recording.
 
 _Created 2026-10-21 by `brain init`._

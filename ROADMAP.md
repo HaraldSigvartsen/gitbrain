@@ -55,7 +55,7 @@ status, added, removed, previousPath? }, touchedPaths }`
       ZCode/OpenCode via `AGENTS.md`); idempotent re-run updates without duplicating
 - [x] Scheduling recipes: `examples/github-action/heal.yml` (opens a PR on drift) and
       `docs/scheduling.md` (cron + launchd one-liners)
-- [ ] `examples/`: a small fake project with a brain, before and after heal
+- [x] `examples/`: a small fake project with a brain, before and after heal
 
 ## v0.6 — `brain ask` (local, offline)
 
