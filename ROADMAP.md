@@ -1,31 +1,8 @@
-# Roadmap & build runbook
+# Roadmap
 
-This repo is built in public by a scheduled AI agent — one unit of work per run —
-on top of a Phase 0 scaffold written interactively with human review. Every run
-follows the protocol below. Humans review and push.
-
-## Protocol for every build run
-
-1. Read `ROADMAP.md` and `ARCHITECTURE.md` before touching code. Also read this
-   repo's own `.brain/CONTEXT.md` and `.brain/HANDOFF.md` — that is the project memory.
-2. Pick the **first unchecked, unblocked** unit below. Implement exactly one unit.
-3. TypeScript, matching the existing module layout and style; add or extend vitest
-   tests covering all new logic. Follow the design rules in `ARCHITECTURE.md`.
-4. Quality gates, in order — all must pass before committing:
-   - `npm install` (only if dependencies changed for this unit)
-   - `npm run check` (typecheck + tests)
-   - `git diff` review: no debug logging, no TODO-as-code, no secrets, no unrelated changes
-5. Commit: `git add <explicit files>` — never `git add .` — with a conventional
-   message (`feat:`, `fix:`, `docs:`, `test:`, `chore:`).
-6. Tick the unit's checkbox in this file and include it in the same commit.
-7. Update this repo's own `.brain/` (we dogfood): append decisions as `D-xxxx`
-   entries per the format in `.brain/DECISIONS.md`, register them in
-   `.brain/brain.json`, and refresh `.brain/HANDOFF.md` for the next run.
-8. **Never push. Never amend history. If blocked** (needs a design decision or
-   missing information): append a note under `## Blockers` below with exactly
-   what is needed, commit only that note, and stop.
-9. Never create personal AI config files (`AGENTS.md`, `CLAUDE.md`, `.claude/`,
-   `.cursor/`) inside this repo, and never touch anything outside this repo.
+Planned units per version. Each unchecked unit is roughly PR-sized and lists
+its acceptance criteria; pick the first unchecked unit to keep version order.
+See CONTRIBUTING.md for how to work on one.
 
 ## v0.1 ✅ — Phase 0 (interactive scaffold, human-reviewed)
 
@@ -82,8 +59,3 @@ follows the protocol below. Humans review and push.
 - [ ] npm publish as `@haraldsigvartsen/gitbrain` (check whether the bare `gitbrain`
       name became available / request transfer)
 - [ ] README: real demo GIF (replace the ASCII sketch), social preview image
-- [ ] Launch drafts in `docs/launch/`: Show HN, r/ClaudeCode, r/cursor
-
-## Blockers
-
-_(none — a build run appends here when it cannot proceed, with what it needs)_

@@ -10,3 +10,7 @@ coverage/
 # NOTE: .brain/ is intentionally NOT ignored — project memory is meant to be
 # committed, diffed and reviewed. Ignore it per-project if your memory must
 # stay private.
+
+# Internal, non-code material lives outside the public repo (never commit):
+agent/
+docs/launch/
