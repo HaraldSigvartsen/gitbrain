@@ -35,5 +35,12 @@
       "updated": "2026-10-22"
     }
   ],
-  "observations": []
+  "observations": [
+    {
+      "id": "O-0001",
+      "title": "Bare brain-file names flagged as stale (false positive)",
+      "status": "open",
+      "updated": "2026-10-22"
+    }
+  ]
 }

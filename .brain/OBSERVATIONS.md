@@ -17,4 +17,15 @@ IDs are sequential (O-0001, O-0002, …) and are never reused.
 
 ---
 
+## O-0001 — Bare brain-file names flagged as stale (false positive)
+- **Priority:** IMPORTANT
+- **Status:** open
+- **Where:** `src/heal/detect.ts`
+- **Found:** 2026-10-22
+- **Detail:** `brain heal --dry-run` on this repo flagged CONTEXT.md's mention of
+  `brain.json` as "not present at HEAD" — the existence check resolves the bare name
+  against the repo root, but the file lives at `.brain/brain.json`. Brain-relative
+  mentions (brain.json, CONTEXT.md, DECISIONS.md, …) should resolve inside `.brain/`
+  before being called stale.
+
 _(no observations recorded yet — created 2026-10-21 by `brain init`)_
