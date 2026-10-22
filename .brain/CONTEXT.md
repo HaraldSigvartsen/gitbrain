@@ -24,7 +24,8 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 - `src/git/diff.ts` — `collectChangeSet(dir, lastReconciledSha)` → commits, per-file stats, touched paths.
 - `src/brain/parse.ts` — parse DECISIONS/OBSERVATIONS/CONTEXT paths; reconcile markdown ↔ `brain.json`.
 - `src/heal/detect.ts` — `detectDrift` → `DriftReport` (proposals only, no writes).
-- Planned: `src/heal/apply.ts`, `brain heal` command.
+- `src/heal/apply.ts` — `applyDriftReport` writes inside `.brain/` only (ledger, annotations, reports, SHA).
+- Planned: `brain heal` command.
 
 ## Conventions
 
@@ -38,6 +39,6 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 ## Current focus
 
 v0.2 diff collector, v0.3 parser and drift detector are in place.
-Next: `src/heal/apply.ts` and the `brain heal` CLI. Tests: `test/heal-detect.test.ts`, `test/brain-parse.test.ts`.
+Next: `brain heal` CLI (`--dry-run`, `--json`). Tests: `test/heal-apply.test.ts`, `test/heal-detect.test.ts`.
 
 _Created 2026-10-21 by `brain init`._

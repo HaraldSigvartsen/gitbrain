@@ -57,7 +57,7 @@ follows the protocol below. Humans review and push.
 
 ## v0.4 — `brain heal`
 
-- [ ] `src/heal/apply.ts`: apply a DriftReport — update ledger, annotate entries in the
+- [x] `src/heal/apply.ts`: apply a DriftReport — update ledger, annotate entries in the
       markdown with a `> healed <date> — <reason>` line (original text kept), write
       `.brain/reports/<date>.md`, advance `last_reconciled_sha`
 - [ ] `brain heal [dir]` command with `--dry-run` (print the report, write nothing)
