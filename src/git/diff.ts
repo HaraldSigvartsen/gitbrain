@@ -146,6 +146,35 @@ function resolveSinceBoundary(
 }
 
 /**
+ * Aggregate `git diff since..head` omits paths that were added and removed within the
+ * range (net absent at HEAD). `git log --name-status` still records those deletes.
+ */
+function mergeEphemeralDeletesFromLog(
+  repoDir: string,
+  range: string,
+  files: FileChange[],
+): FileChange[] {
+  const logRows = parseNameStatus(
+    git(repoDir, ["log", "--name-status", "-M", "--find-renames", "--pretty=format:", range]),
+  );
+  const pathsInFiles = new Set(files.map((f) => f.path));
+  const extra: FileChange[] = [];
+  for (const row of logRows) {
+    if (row.status !== "deleted" || pathsInFiles.has(row.path)) {
+      continue;
+    }
+    pathsInFiles.add(row.path);
+    extra.push({
+      path: row.path,
+      status: "deleted",
+      added: 0,
+      removed: 0,
+    });
+  }
+  return extra.length > 0 ? [...files, ...extra] : files;
+}
+
+/**
  * Collect a structured change set from git history after `lastReconciledSha`
  * (or from the first commit on first run, capped).
  */
@@ -166,7 +195,7 @@ export function collectChangeSet(
     git(repoDir, ["diff", "--numstat", "-M", "--find-renames", range]),
   );
 
-  const files: FileChange[] = nameStatus.map((row) => {
+  let files: FileChange[] = nameStatus.map((row) => {
     const statKey =
       row.status === "renamed" && row.previousPath
         ? `${row.previousPath} => ${row.path}`
@@ -183,6 +212,8 @@ export function collectChangeSet(
     }
     return file;
   });
+
+  files = mergeEphemeralDeletesFromLog(repoDir, range, files);
 
   const touched = new Set<string>();
   for (const file of files) {

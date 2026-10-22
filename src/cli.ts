@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import { resolve } from "node:path";
+import { formatHealHumanOutput, healResultToJson, runHeal } from "./commands/heal.js";
 import { runInit } from "./commands/init.js";
 import { runStatus } from "./commands/status.js";
 import { VERSION } from "./version.js";
@@ -29,6 +30,22 @@ Next steps:
   2. Point your agents at it (see "Tell your agents" in the README).
   3. Run \`brain status\` any time to see the ledger.
 `);
+  });
+
+program
+  .command("heal")
+  .description("Reconcile .brain/ memory against git history (detect drift and apply fixes).")
+  .argument("[dir]", "project directory", ".")
+  .option("--dry-run", "print the drift report without writing files")
+  .option("--json", "emit machine-readable JSON on stdout")
+  .action((dir: string, options: { dryRun?: boolean; json?: boolean }) => {
+    const projectDir = resolve(dir);
+    const result = runHeal(projectDir, { dryRun: options.dryRun });
+    if (options.json) {
+      console.log(JSON.stringify(healResultToJson(result), null, 2));
+      return;
+    }
+    console.log("\n" + formatHealHumanOutput(result));
   });
 
 program
