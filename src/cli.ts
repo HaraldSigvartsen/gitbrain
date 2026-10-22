@@ -37,10 +37,11 @@ program
   .description("Reconcile .brain/ memory against git history (detect drift and apply fixes).")
   .argument("[dir]", "project directory", ".")
   .option("--dry-run", "print the drift report without writing files")
+  .option("--commit", "commit only .brain/ changes after applying (local commit, never pushes)")
   .option("--json", "emit machine-readable JSON on stdout")
-  .action((dir: string, options: { dryRun?: boolean; json?: boolean }) => {
+  .action((dir: string, options: { dryRun?: boolean; commit?: boolean; json?: boolean }) => {
     const projectDir = resolve(dir);
-    const result = runHeal(projectDir, { dryRun: options.dryRun });
+    const result = runHeal(projectDir, { dryRun: options.dryRun, commit: options.commit });
     if (options.json) {
       console.log(JSON.stringify(healResultToJson(result), null, 2));
       return;

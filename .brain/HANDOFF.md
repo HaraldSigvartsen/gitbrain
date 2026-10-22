@@ -4,7 +4,7 @@
 > keep it under a screenful. Detail belongs in CONTEXT.md or DECISIONS.md.
 
 - **Date:** 2026-10-22
-- **What we did:** Rename re-pointing in heal — `observationRepoints` / `contextRepoints` in `detectDrift`, apply updates `Where:` and CONTEXT backticks with heal annotations (entries stay open).
-- **Where we stopped:** P0 rename handling ready for PR.
-- **Next steps:** `brain heal --commit`, then install-path verification.
-- **Open threads:** README honesty pass still pending.
+- **What we did:** `brain heal --commit` — `src/git/commit-brain.ts` stages only heal-written `.brain/` files; rejects foreign staged paths; conventional `chore(brain):` message.
+- **Where we stopped:** PR ready for `agent/heal-commit`.
+- **Next steps:** install-path verification, README honesty + version 0.2.0.
+- **Open threads:** README still says "shipping in v0.4" for heal.

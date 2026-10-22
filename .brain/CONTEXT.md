@@ -25,7 +25,8 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 - `src/brain/parse.ts` — parse DECISIONS/OBSERVATIONS/CONTEXT paths; reconcile markdown ↔ `brain.json`.
 - `src/heal/detect.ts` — `detectDrift` → `DriftReport` (close/supersede/re-point proposals, no writes).
 - `src/heal/apply.ts` — `applyDriftReport` writes inside `.brain/` only (ledger, annotations, reports, SHA).
-- `src/commands/heal.ts` — `runHeal`: collect → detect → apply; `formatHealHumanOutput` / `healResultToJson`.
+- `src/commands/heal.ts` — `runHeal`: collect → detect → apply; optional `commitBrainMemory`; `formatHealHumanOutput` / `healResultToJson`.
+- `src/git/commit-brain.ts` — `commitBrainMemory`: stage only heal-written `.brain/` paths, conventional commit (never pushes).
 
 ## Conventions
 
@@ -39,6 +40,6 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 ## Current focus
 
 v0.2 diff collector, v0.3 parser and drift detector are in place.
-Next: `brain heal --commit`. Tests: `test/heal-apply.test.ts` (rename re-point), `test/heal-command.test.ts`.
+Next: install-path verification (`npm pack`), README honesty pass. Tests: `test/heal-commit.test.ts`.
 
 _Created 2026-10-21 by `brain init`._

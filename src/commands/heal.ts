@@ -1,5 +1,6 @@
 import { relative } from "node:path";
 import { parseBrain } from "../brain/parse.js";
+import { commitBrainMemory, type CommitBrainResult } from "../git/commit-brain.js";
 import { collectChangeSet, EMPTY_TREE_SHA } from "../git/diff.js";
 import { applyDriftReport, type ApplyChange, type ApplyResult } from "../heal/apply.js";
 import { detectDrift, type DriftReport, type StaleContextPath } from "../heal/detect.js";
@@ -7,6 +8,7 @@ import { readLedger } from "./status.js";
 
 export interface HealOptions {
   dryRun?: boolean;
+  commit?: boolean;
   now?: Date;
 }
 
@@ -15,16 +17,22 @@ export interface HealResult {
   dryRun: boolean;
   report: DriftReport;
   apply: ApplyResult;
+  commit: CommitBrainResult | null;
 }
 
 export function runHeal(projectDir: string, options: HealOptions = {}): HealResult {
   const dryRun = options.dryRun ?? false;
+  const wantCommit = options.commit ?? false;
+  if (wantCommit && dryRun) {
+    throw new Error("--commit cannot be used with --dry-run");
+  }
   const ledger = readLedger(projectDir);
   const changeSet = collectChangeSet(projectDir, ledger.last_reconciled_sha);
   const brain = parseBrain(projectDir);
   const report = detectDrift(projectDir, changeSet, brain);
   const apply = applyDriftReport(projectDir, report, { dryRun, now: options.now });
-  return { projectDir, dryRun, report, apply };
+  const commit = wantCommit ? commitBrainMemory(projectDir, apply) : null;
+  return { projectDir, dryRun, report, apply, commit };
 }
 
 function formatSinceLabel(report: DriftReport, previousReconciledSha: string | null): string {
@@ -109,6 +117,11 @@ export function formatHealHumanOutput(result: HealResult): string {
     lines.push(`Wrote memory drift report → ${rel}`, "");
   }
 
+  if (result.commit?.committed && result.commit.commitSha) {
+    const short = result.commit.commitSha.slice(0, 7);
+    lines.push(`Committed heal changes → ${short} (${result.commit.message})`, "");
+  }
+
   return lines.join("\n").trimEnd() + "\n";
 }
 
@@ -124,6 +137,7 @@ export interface HealJsonPayload {
   changes: ApplyChange[];
   staleContextPaths: StaleContextPath[];
   ledgerMismatches: Array<{ message: string }>;
+  commit: CommitBrainResult | null;
 }
 
 export function healResultToJson(result: HealResult): HealJsonPayload {
@@ -140,5 +154,6 @@ export function healResultToJson(result: HealResult): HealJsonPayload {
     changes: apply.changes,
     staleContextPaths: report.staleContextPaths,
     ledgerMismatches: report.ledgerMismatches.map((m) => ({ message: m.message })),
+    commit: result.commit,
   };
 }
