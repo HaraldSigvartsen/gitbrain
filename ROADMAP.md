@@ -47,13 +47,13 @@ follows the protocol below. Humans review and push.
 
 ## v0.3 — drift detector
 
-- [ ] `src/heal/detect.ts`: pure function — change set + `.brain/` contents → `DriftReport`
+- [x] `src/heal/detect.ts`: pure function — change set + `.brain/` contents → `DriftReport`
       (no file writes): observation whose `Where:` path was deleted/heavily rewritten →
       close candidate; decision whose subject code was replaced → supersede candidate;
       CONTEXT.md paths that no longer exist → stale flags. Conservative: propose, don't decide.
 - [x] Markdown parsing of DECISIONS.md / OBSERVATIONS.md entries (IDs, statuses, `Where:` paths)
       and reconciliation with `brain.json` (mismatch → lint warning in the report)
-- [ ] Tests: fixture brains × fixture repos covering delete / rename / rewrite / healthy cases
+- [x] Tests: fixture brains × fixture repos covering delete / rename / rewrite / healthy cases
 
 ## v0.4 — `brain heal`
 
