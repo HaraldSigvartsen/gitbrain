@@ -16,7 +16,7 @@ See CONTRIBUTING.md for how to work on one.
 
 - [x] `src/git/diff.ts`: collect a structured change set since `last_reconciled_sha`
       (or from the first commit on first run, capped) — `{ commits, files: { path,
-    status, added, removed, previousPath? }, touchedPaths }`
+status, added, removed, previousPath? }, touchedPaths }`
 - [x] Uses `git log`/`git diff --numstat --find-renames` via `execFile` only — no shell
       interpolation of repo-controlled strings; clear errors when the directory is not
       a git repo
@@ -47,7 +47,7 @@ See CONTRIBUTING.md for how to work on one.
 
 ## v0.5 — agent emitters & validation
 
-- [ ] `docs/agents.md`: paste-ready session instructions for Claude Code, Codex, Cursor,
+- [x] `docs/agents.md`: paste-ready session instructions for Claude Code, Codex, Cursor,
       ZCode, OpenCode; plus optional post-session hook scripts
 - [x] `brain lint`: validate markdown entries ↔ ledger consistency (duplicate IDs,
       missing registrations, broken sequence)
