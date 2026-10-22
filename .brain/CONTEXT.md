@@ -22,6 +22,7 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 - `docs/logo.svg` — the logo used in the README.
 - `src/git/exec.ts` — `git -C <repo> …` wrapper; friendly error when not a git repo.
 - `src/git/diff.ts` — `collectChangeSet(dir, lastReconciledSha)` → commits, per-file stats, touched paths.
+- `src/brain/parse.ts` — parse DECISIONS/OBSERVATIONS/CONTEXT paths; reconcile markdown ↔ `brain.json`.
 - Planned: `src/heal/` (detect + apply).
 
 ## Conventions
@@ -35,7 +36,7 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 
 ## Current focus
 
-v0.1 (Phase 0) is complete. v0.2 git diff collector is in `src/git/diff.ts` (15 tests).
-Next unit is v0.3: brain markdown parsing and drift detection. `brain heal` does not exist yet.
+v0.2 git diff collector and v0.3 markdown parser (`src/brain/parse.ts`) are in place.
+Next: `src/heal/detect.ts` drift detection, then `brain heal`. Parser has vitest coverage in `test/brain-parse.test.ts`.
 
 _Created 2026-10-21 by `brain init`._
