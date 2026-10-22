@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import { resolve } from "node:path";
+import { existsSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { LEDGER_FILE, brainDir } from "./brain.js";
+import { askResultToJson, formatAskHumanOutput, runAsk } from "./commands/ask.js";
 import { formatHealHumanOutput, healResultToJson, runHeal } from "./commands/heal.js";
 import { formatLintHumanOutput, lintResultToJson, runLint } from "./commands/lint.js";
 import { parseAgentToolsList } from "./agents/emit.js";
@@ -62,6 +65,37 @@ program
     }
     console.log("\n" + formatHealHumanOutput(result));
   });
+
+program
+  .command("ask")
+  .description("Search project memory offline (deterministic keyword retrieval over .brain/).")
+  .argument("[dir]", "project directory", ".")
+  .argument("<query...>", "words to search for")
+  .option("--all", "also search sibling projects under the same parent directory")
+  .option("--limit <n>", "maximum number of hits to show", (value) => Number.parseInt(value, 10))
+  .option("--json", "emit machine-readable JSON on stdout")
+  .action(
+    (
+      dir: string,
+      queryParts: string[],
+      options: { all?: boolean; limit?: number; json?: boolean },
+    ) => {
+      const dirArg = resolve(dir);
+      const dirHasBrain = existsSync(join(brainDir(dirArg), LEDGER_FILE));
+      const projectDir =
+        dirHasBrain && queryParts.length > 0 ? dirArg : resolve(".");
+      const query =
+        dirHasBrain && queryParts.length > 0
+          ? queryParts.join(" ")
+          : [dir === "." ? "" : dir, ...queryParts].filter(Boolean).join(" ");
+      const result = runAsk(projectDir, query.trim(), { all: options.all, limit: options.limit });
+      if (options.json) {
+        console.log(JSON.stringify(askResultToJson(result), null, 2));
+        return;
+      }
+      console.log("\n" + formatAskHumanOutput(result) + "\n");
+    },
+  );
 
 program
   .command("lint")

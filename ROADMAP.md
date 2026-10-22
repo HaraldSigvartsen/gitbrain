@@ -60,7 +60,7 @@ status, added, removed, previousPath? }, touchedPaths }`
 
 ## v0.6 — `brain ask` (local, offline)
 
-- [ ] Deterministic retrieval over `.brain/` of the current project; `--all` to search
+- [x] Deterministic retrieval over `.brain/` of the current project; `--all` to search
       sibling projects' brains
 - [ ] LLM summarisation strictly optional (user-configured key, off by default)
 
