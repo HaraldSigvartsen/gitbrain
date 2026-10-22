@@ -16,6 +16,13 @@ IDs are sequential (D-0001, D-0002, …) and are never reused.
 
 ---
 
+## D-0005 — Recorded SHAs are hex-validated; numstat parsed only in -z form
+- **Date:** 2026-10-22
+- **Status:** active
+- **Context:** `last_reconciled_sha` comes from `brain.json` — repo-controlled input — and `execFile` passes it straight into git's argv, so a crafted value starting with `--` would be parsed by git as an option (option injection). Separately, plain `git diff --numstat` brace-compresses same-directory rename paths (`src/{old.ts => new.ts}`), which made rename line counts silently read as 0/0 and fed the drift detector's "heavily rewritten" heuristic wrong.
+- **Choice:** Validate the recorded SHA as 7–40 hex chars before any git call, with a friendly error for SHAs that history no longer contains. Parse numstat only with `-z`, where a rename record is `added\tremoved\t` + NUL + old + NUL + new (verified empirically). Rejected: unquoting the brace-compressed form.
+- **Consequences:** Any future code path that passes ledger values to git must validate first. Same-directory renames with edits now carry real counts (regression-tested).
+
 ## D-0004 — Markdown is the source of truth; brain.json is only an index
 - **Date:** 2026-10-21
 - **Status:** active
