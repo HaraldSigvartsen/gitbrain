@@ -53,6 +53,8 @@ status, added, removed, previousPath? }, touchedPaths }`
       missing registrations, broken sequence)
 - [x] `brain init --agents`: marker-delimited snippets for Cursor, Codex, Claude (and
       ZCode/OpenCode via `AGENTS.md`); idempotent re-run updates without duplicating
+- [x] Scheduling recipes: `examples/github-action/heal.yml` (opens a PR on drift) and
+      `docs/scheduling.md` (cron + launchd one-liners)
 - [ ] `examples/`: a small fake project with a brain, before and after heal
 
 ## v0.6 — `brain ask` (local, offline)

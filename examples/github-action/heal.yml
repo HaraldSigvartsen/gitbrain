@@ -1,0 +1,49 @@
+# Copy to your repo as `.github/workflows/brain-heal.yml`.
+# Runs `brain heal` on a schedule (or manually) and opens a PR when memory drifted.
+name: brain heal
+
+on:
+  schedule:
+    # Weekly — Monday 06:00 UTC. Adjust to taste.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: brain-heal
+  cancel-in-progress: true
+
+jobs:
+  heal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so the collector can diff since last_reconciled_sha.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install gitbrain
+        run: npm install -g github:HaraldSigvartsen/gitbrain
+
+      - name: Reconcile .brain against git
+        run: brain heal .
+
+      - name: Open PR with drift report
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore(brain): heal memory drift"
+          title: "chore(brain): heal memory drift"
+          branch: brain/heal-${{ github.run_number }}
+          body: |
+            Automated [`brain heal`](https://github.com/HaraldSigvartsen/gitbrain) run.
+
+            Review `.brain/reports/` for the dated drift report and any annotated entries in
+            `DECISIONS.md` / `OBSERVATIONS.md` / `CONTEXT.md`.
+          delete-branch: true
