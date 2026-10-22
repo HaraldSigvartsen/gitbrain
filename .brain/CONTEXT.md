@@ -31,6 +31,8 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 - `src/git/commit-brain.ts` — `commitBrainMemory`: stage only heal-written `.brain/` paths, conventional commit (never pushes).
 - `src/agents/instruction.ts` — canonical paste-ready instruction body + HTML comment markers.
 - `src/agents/emit.ts` — `emitAgentInstructions` / `parseAgentToolsList` for `brain init --agents`.
+- `examples/github-action/heal.yml` — copy-paste workflow: scheduled `brain heal` + PR on drift.
+- `docs/scheduling.md` — cron, launchd, and CI scheduling notes.
 
 ## Conventions
 
@@ -43,7 +45,6 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 
 ## Current focus
 
-**0.2.0** ships `brain heal` end-to-end (collector, detect, apply, `--commit`, install-from-GitHub test).
-Dogfood heal done (`last_reconciled_sha` set). **v0.5** `brain lint` + `docs/agents.md` shipped; next: `brain init --agents` then examples/demo.
+**0.2.0** ships `brain heal` end-to-end. **v0.5** adds `brain lint`, `docs/agents.md`, `brain init --agents`, and scheduling examples. Next: `examples/demo-project/` and demo recording.
 
 _Created 2026-10-21 by `brain init`._
