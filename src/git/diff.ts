@@ -1,4 +1,4 @@
-import { git } from "./exec.js";
+import { git, GitError } from "./exec.js";
 
 /** Git's canonical empty tree object id — valid parent for the first commit's diff. */
 export const EMPTY_TREE_SHA = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
@@ -33,35 +33,46 @@ export interface ChangeSet {
   capped: boolean;
 }
 
-function parseNumstat(stdout: string): Map<string, { added: number; removed: number }> {
-  const stats = new Map<string, { added: number; removed: number }>();
-  if (!stdout.trim()) {
-    return stats;
+function parseNumstat(stdout: string): {
+  counts: Map<string, { added: number; removed: number }>;
+  renames: Map<string, { added: number; removed: number }>;
+} {
+  const counts = new Map<string, { added: number; removed: number }>();
+  const renames = new Map<string, { added: number; removed: number }>();
+  if (!stdout) {
+    return { counts, renames };
   }
-  for (const line of stdout.split("\n")) {
-    if (!line.trim()) {
+  const toCount = (raw: string): number => {
+    if (raw === "-") {
+      return 0;
+    }
+    const parsed = Number.parseInt(raw, 10);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+  // With -z, a rename record is `added\tremoved\t` + NUL + old path + NUL + new
+  // path + NUL; every other record is `added\tremoved\tpath` + NUL.
+  const tokens = stdout.split("\0");
+  const record = /^(-|\d+)\t(-|\d+)\t?([\s\S]*)$/;
+  for (let i = 0; i < tokens.length;) {
+    const match = record.exec(tokens[i] ?? "");
+    if (!match) {
+      i += 1;
       continue;
     }
-    const tab = line.indexOf("\t");
-    if (tab === -1) {
-      continue;
+    const line = { added: toCount(match[1]!), removed: toCount(match[2]!) };
+    if (match[3] !== "") {
+      counts.set(match[3], line);
+      i += 1;
+    } else {
+      const previousPath = tokens[i + 1];
+      const path = tokens[i + 2];
+      if (previousPath !== undefined && path !== undefined) {
+        renames.set(path, line);
+      }
+      i += 3;
     }
-    const addedRaw = line.slice(0, tab);
-    const rest = line.slice(tab + 1);
-    const tab2 = rest.indexOf("\t");
-    if (tab2 === -1) {
-      continue;
-    }
-    const removedRaw = rest.slice(0, tab2);
-    const path = rest.slice(tab2 + 1);
-    const added = addedRaw === "-" ? 0 : Number.parseInt(addedRaw, 10);
-    const removed = removedRaw === "-" ? 0 : Number.parseInt(removedRaw, 10);
-    stats.set(path, {
-      added: Number.isFinite(added) ? added : 0,
-      removed: Number.isFinite(removed) ? removed : 0,
-    });
   }
-  return stats;
+  return { counts, renames };
 }
 
 interface NameStatusRow {
@@ -123,7 +134,26 @@ function resolveSinceBoundary(
   lastReconciledSha: string | null,
 ): { sinceSha: string; capped: boolean } {
   if (lastReconciledSha) {
-    git(repoDir, ["rev-parse", "--verify", `${lastReconciledSha}^{commit}`]);
+    // The SHA comes from brain.json — repo-controlled input. execFile passes it
+    // straight into git's argv, so anything not shaped like a SHA (e.g. a string
+    // starting with "--") must be rejected before git can parse it as an option.
+    if (!/^[0-9a-f]{7,40}$/i.test(lastReconciledSha)) {
+      throw new GitError(
+        `Recorded last_reconciled_sha "${lastReconciledSha}" is not a hexadecimal SHA — refusing to pass it to git.`,
+        repoDir,
+        "",
+      );
+    }
+    try {
+      git(repoDir, ["rev-parse", "--verify", `${lastReconciledSha}^{commit}`]);
+    } catch {
+      throw new GitError(
+        `Recorded last_reconciled_sha ${lastReconciledSha} is not a commit in this repository — ` +
+          `was history rewritten? Clear last_reconciled_sha in brain.json to reconcile from scratch.`,
+        repoDir,
+        "",
+      );
+    }
     return { sinceSha: lastReconciledSha, capped: false };
   }
 
@@ -178,10 +208,7 @@ function mergeEphemeralDeletesFromLog(
  * Collect a structured change set from git history after `lastReconciledSha`
  * (or from the first commit on first run, capped).
  */
-export function collectChangeSet(
-  repoDir: string,
-  lastReconciledSha: string | null,
-): ChangeSet {
+export function collectChangeSet(repoDir: string, lastReconciledSha: string | null): ChangeSet {
   const headSha = git(repoDir, ["rev-parse", "HEAD"]);
   const { sinceSha, capped } = resolveSinceBoundary(repoDir, lastReconciledSha);
   const range = `${sinceSha}..${headSha}`;
@@ -191,16 +218,15 @@ export function collectChangeSet(
   const nameStatus = parseNameStatus(
     git(repoDir, ["diff", "--name-status", "-M", "--find-renames", range]),
   );
+  // -z is required: plain numstat brace-compresses same-directory renames
+  // (`src/{old.ts => new.ts}`), which loses the real per-path line counts.
   const numstat = parseNumstat(
-    git(repoDir, ["diff", "--numstat", "-M", "--find-renames", range]),
+    git(repoDir, ["diff", "--numstat", "-M", "--find-renames", "-z", range]),
   );
 
   let files: FileChange[] = nameStatus.map((row) => {
-    const statKey =
-      row.status === "renamed" && row.previousPath
-        ? `${row.previousPath} => ${row.path}`
-        : row.path;
-    const stat = numstat.get(statKey) ?? numstat.get(row.path) ?? { added: 0, removed: 0 };
+    const stat = (row.status === "renamed" ? numstat.renames.get(row.path) : undefined) ??
+      numstat.counts.get(row.path) ?? { added: 0, removed: 0 };
     const file: FileChange = {
       path: row.path,
       status: row.status,

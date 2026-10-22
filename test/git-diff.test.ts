@@ -1,13 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdtempSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import {
-  EMPTY_TREE_SHA,
-  collectChangeSet,
-  oldestShaInCappedWindow,
-} from "../src/git/diff.js";
+import { EMPTY_TREE_SHA, collectChangeSet, oldestShaInCappedWindow } from "../src/git/diff.js";
 import { GitError } from "../src/git/exec.js";
 
 function tmpRepo(): string {
@@ -96,6 +92,43 @@ describe("collectChangeSet", () => {
       expect.arrayContaining(["keep.txt", "old-name.txt", "new-name.txt"]),
     );
     expect(existsSync(join(repo, "new-name.txt"))).toBe(true);
+  });
+
+  it("counts real line changes for same-directory renames", () => {
+    const repo = tmpRepo();
+    mkdirSync(join(repo, "src"));
+    writeFileSync(join(repo, "src", "old.ts"), "hello\n");
+    const base = commitAll(repo, "seed");
+    renameSync(join(repo, "src", "old.ts"), join(repo, "src", "new.ts"));
+    writeFileSync(join(repo, "src", "new.ts"), "hello\nmore\n");
+    commitAll(repo, "rename with edit");
+
+    // Plain numstat prints this rename as `src/{old.ts => new.ts}` (brace
+    // compression); only the -z form gives reliable per-path counts.
+    const change = collectChangeSet(repo, base);
+    expect(change.files).toContainEqual({
+      path: "src/new.ts",
+      status: "renamed",
+      previousPath: "src/old.ts",
+      added: 1,
+      removed: 0,
+    });
+  });
+
+  it("rejects a non-hexadecimal recorded SHA before it reaches git's argv", () => {
+    const repo = tmpRepo();
+    writeFileSync(join(repo, "a.txt"), "a\n");
+    commitAll(repo, "seed");
+
+    expect(() => collectChangeSet(repo, "--output=evil")).toThrow(/not a hexadecimal SHA/u);
+  });
+
+  it("gives a clear error when a hex SHA is missing from history", () => {
+    const repo = tmpRepo();
+    writeFileSync(join(repo, "a.txt"), "a\n");
+    commitAll(repo, "seed");
+
+    expect(() => collectChangeSet(repo, "deadbee")).toThrow(/history rewritten/u);
   });
 
   it("caps first-run history when commit count exceeds the cap", () => {

@@ -27,6 +27,12 @@
       "title": "Markdown is the source of truth; brain.json is only an index",
       "status": "active",
       "updated": "2026-10-21"
+    },
+    {
+      "id": "D-0005",
+      "title": "Recorded SHAs are hex-validated; numstat parsed only in -z form",
+      "status": "active",
+      "updated": "2026-10-22"
     }
   ],
   "observations": []
