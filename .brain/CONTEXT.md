@@ -34,6 +34,8 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 - `examples/github-action/heal.yml` — copy-paste workflow: scheduled `brain heal` + PR on drift.
 - `examples/demo-project/` — scripted drift story with before/after snapshots and `build-history.sh`.
 - `docs/scheduling.md` — cron, launchd, and CI scheduling notes.
+- `src/ask/retrieve.ts` — offline keyword retrieval over `.brain/` markdown (`discoverBrainRoots`, `runAskSearch`).
+- `src/commands/ask.ts` — `runAsk`, human/JSON formatters for `brain ask`.
 
 ## Conventions
 
@@ -46,6 +48,6 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 
 ## Current focus
 
-**0.2.0** ships `brain heal` end-to-end. **v0.5** adds lint, agent emitters, scheduling, `examples/demo-project/`, and `scripts/demo.sh` (transcript + optional VHS). Next: `brain ask` (v0.6).
+**0.2.0** ships `brain heal` end-to-end. **v0.5** adds lint, agent emitters, scheduling, `examples/demo-project/`, and `scripts/demo.sh`. **v0.6** adds `brain ask` (deterministic retrieval, `--all` for sibling projects). Next: CLI polish (v0.7 prep).
 
 _Created 2026-10-21 by `brain init`._
