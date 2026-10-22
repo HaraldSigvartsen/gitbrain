@@ -37,13 +37,13 @@ follows the protocol below. Humans review and push.
 
 ## v0.2 — git diff collector
 
-- [ ] `src/git/diff.ts`: collect a structured change set since `last_reconciled_sha`
+- [x] `src/git/diff.ts`: collect a structured change set since `last_reconciled_sha`
       (or from the first commit on first run, capped) — `{ commits, files: { path,
     status, added, removed, previousPath? }, touchedPaths }`
-- [ ] Uses `git log`/`git diff --numstat --find-renames` via `execFile` only — no shell
+- [x] Uses `git log`/`git diff --numstat --find-renames` via `execFile` only — no shell
       interpolation of repo-controlled strings; clear errors when the directory is not
       a git repo
-- [ ] Fixture repos built in tmpdirs by the tests (init, commit, rename, delete cases)
+- [x] Fixture repos built in tmpdirs by the tests (init, commit, rename, delete cases)
 
 ## v0.3 — drift detector
 

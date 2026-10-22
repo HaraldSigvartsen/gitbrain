@@ -20,7 +20,9 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 - `src/version.ts` — `VERSION`, kept in sync with package.json by `test/version.test.ts`.
 - `test/` — vitest; every test builds its own project in a tmpdir, nothing shared.
 - `docs/logo.svg` — the logo used in the README.
-- Planned: `src/git/` (read-only git access via `execFile`) and `src/heal/` (detect + apply).
+- `src/git/exec.ts` — `git -C <repo> …` wrapper; friendly error when not a git repo.
+- `src/git/diff.ts` — `collectChangeSet(dir, lastReconciledSha)` → commits, per-file stats, touched paths.
+- Planned: `src/heal/` (detect + apply).
 
 ## Conventions
 
@@ -33,7 +35,7 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 
 ## Current focus
 
-v0.1 (Phase 0) is complete. Next unit is v0.2: the git diff collector in `src/git/diff.ts`.
-`brain heal` does not exist yet — the README describes its planned behaviour and says so.
+v0.1 (Phase 0) is complete. v0.2 git diff collector is in `src/git/diff.ts` (15 tests).
+Next unit is v0.3: brain markdown parsing and drift detection. `brain heal` does not exist yet.
 
 _Created 2026-10-21 by `brain init`._

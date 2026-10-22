@@ -8,7 +8,7 @@
 | `src/commands/`         | One module per command. Pure logic that throws friendly errors — no `console.*` here, the CLI layer prints. |
 | `src/brain.ts`          | The contract: `.brain/` file names, paths, and the `Ledger` types.                                          |
 | `src/templates.ts`      | Initial `.brain/` file contents. These templates double as the format specification.                        |
-| `src/git/` _(planned)_  | Read-only git access. Always shells out to the `git` binary — no git libraries.                             |
+| `src/git/`              | Read-only git access via `execFile("git", …)`. `diff.ts` collects rename-aware change sets.                 |
 | `src/heal/` _(planned)_ | Drift detection and application. Never mutates anything outside `.brain/`, never touches git history.       |
 
 ## Data flow
