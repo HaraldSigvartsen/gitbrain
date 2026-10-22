@@ -49,7 +49,7 @@ See CONTRIBUTING.md for how to work on one.
 
 - [ ] `docs/agents.md`: paste-ready session instructions for Claude Code, Codex, Cursor,
       ZCode, OpenCode; plus optional post-session hook scripts
-- [ ] `brain lint`: validate markdown entries ↔ ledger consistency (duplicate IDs,
+- [x] `brain lint`: validate markdown entries ↔ ledger consistency (duplicate IDs,
       missing registrations, broken sequence)
 - [ ] `examples/`: a small fake project with a brain, before and after heal
 
