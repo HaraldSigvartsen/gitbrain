@@ -33,15 +33,15 @@ so the drift gets healed or recorded.
 
 ## Where to paste it
 
-| Tool | File | Notes |
-| --- | --- | --- |
-| Claude Code | `CLAUDE.md` | Commit it so the whole team shares one brain. |
-| Codex CLI | `AGENTS.md` | |
-| ZCode | `AGENTS.md` | |
-| OpenCode | `AGENTS.md` | |
-| Cursor | `.cursor/rules/gitbrain.mdc` | Frontmatter: `description: gitbrain memory` + `alwaysApply: true`. Legacy projects use `.cursorrules`. |
-| GitHub Copilot coding agent | `.github/copilot-instructions.md` | |
-| Anything else | system prompt / custom instructions | The block is tool-agnostic. |
+| Tool                        | File                                | Notes                                                                                                  |
+| --------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Claude Code                 | `CLAUDE.md`                         | Commit it so the whole team shares one brain.                                                          |
+| Codex CLI                   | `AGENTS.md`                         |                                                                                                        |
+| ZCode                       | `AGENTS.md`                         |                                                                                                        |
+| OpenCode                    | `AGENTS.md`                         |                                                                                                        |
+| Cursor                      | `.cursor/rules/gitbrain.mdc`        | Frontmatter: `description: gitbrain memory` + `alwaysApply: true`. Legacy projects use `.cursorrules`. |
+| GitHub Copilot coding agent | `.github/copilot-instructions.md`   |                                                                                                        |
+| Anything else               | system prompt / custom instructions | The block is tool-agnostic.                                                                            |
 
 ## Validate at session end: `brain lint`
 
