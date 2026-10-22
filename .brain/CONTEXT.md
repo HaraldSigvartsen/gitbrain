@@ -39,7 +39,7 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 
 ## Current focus
 
-v0.2 diff collector, v0.3 parser and drift detector are in place.
-Next: install-path verification (`npm pack`), README honesty pass. Tests: `test/heal-commit.test.ts`.
+**0.2.0** ships `brain heal` end-to-end (collector, detect, apply, `--commit`, install-from-GitHub test).
+Next: dogfood heal on this repo; then v0.5 `brain lint` and `docs/agents.md`.
 
 _Created 2026-10-21 by `brain init`._
