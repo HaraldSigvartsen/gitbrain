@@ -60,8 +60,8 @@ follows the protocol below. Humans review and push.
 - [x] `src/heal/apply.ts`: apply a DriftReport — update ledger, annotate entries in the
       markdown with a `> healed <date> — <reason>` line (original text kept), write
       `.brain/reports/<date>.md`, advance `last_reconciled_sha`
-- [ ] `brain heal [dir]` command with `--dry-run` (print the report, write nothing)
-- [ ] Idempotency tests: heal → heal again → zero changes the second time
+- [x] `brain heal [dir]` command with `--dry-run` (print the report, write nothing)
+- [x] Idempotency tests: heal → heal again → zero changes the second time
 
 ## v0.5 — agent emitters & validation
 

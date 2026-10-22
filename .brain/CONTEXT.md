@@ -21,11 +21,11 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 - `test/` — vitest; every test builds its own project in a tmpdir, nothing shared.
 - `docs/logo.svg` — the logo used in the README.
 - `src/git/exec.ts` — `git -C <repo> …` wrapper; friendly error when not a git repo.
-- `src/git/diff.ts` — `collectChangeSet(dir, lastReconciledSha)` → commits, per-file stats, touched paths.
+- `src/git/diff.ts` — `collectChangeSet(dir, lastReconciledSha)` → commits, per-file stats, touched paths (merges ephemeral deletes from `git log` on first run).
 - `src/brain/parse.ts` — parse DECISIONS/OBSERVATIONS/CONTEXT paths; reconcile markdown ↔ `brain.json`.
 - `src/heal/detect.ts` — `detectDrift` → `DriftReport` (proposals only, no writes).
 - `src/heal/apply.ts` — `applyDriftReport` writes inside `.brain/` only (ledger, annotations, reports, SHA).
-- Planned: `brain heal` command.
+- `src/commands/heal.ts` — `runHeal`: collect → detect → apply; `formatHealHumanOutput` / `healResultToJson`.
 
 ## Conventions
 
@@ -39,6 +39,6 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 ## Current focus
 
 v0.2 diff collector, v0.3 parser and drift detector are in place.
-Next: `brain heal` CLI (`--dry-run`, `--json`). Tests: `test/heal-apply.test.ts`, `test/heal-detect.test.ts`.
+Next: rename re-pointing in heal, then `brain heal --commit`. Tests: `test/heal-command.test.ts`, `test/heal-apply.test.ts`.
 
 _Created 2026-10-21 by `brain init`._

@@ -105,6 +105,23 @@ describe("collectChangeSet", () => {
     expect(window).toEqual(["c", "d", "e"]);
   });
 
+  it("includes ephemeral deletes on a first run (added then removed within history)", () => {
+    const repo = tmpRepo();
+    writeFileSync(join(repo, "gone.ts"), "x\n");
+    commitAll(repo, "add");
+    unlinkSync(join(repo, "gone.ts"));
+    commitAll(repo, "remove");
+
+    const change = collectChangeSet(repo, null);
+    expect(change.files).toContainEqual({
+      path: "gone.ts",
+      status: "deleted",
+      added: 0,
+      removed: 0,
+    });
+    expect(change.touchedPaths).toContain("gone.ts");
+  });
+
   it("does not cap a short first-run history", () => {
     const repo = tmpRepo();
     for (let i = 0; i < 3; i += 1) {

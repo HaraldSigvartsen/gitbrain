@@ -4,7 +4,7 @@
 > keep it under a screenful. Detail belongs in CONTEXT.md or DECISIONS.md.
 
 - **Date:** 2026-10-22
-- **What we did:** `src/heal/apply.ts` — `applyDriftReport` updates OBSERVATIONS/DECISIONS markdown (`> healed <date> — …`, status → fixed/superseded), `brain.json`, `.brain/reports/<date>.md`, and `last_reconciled_sha`. `test/heal-apply.test.ts` (35 tests total).
-- **Where we stopped:** ROADMAP v0.4 apply unit ticked; `brain heal` CLI not wired yet.
-- **Next steps:** `brain heal [dir]` with `--dry-run` / `--json`, README-format output, E2E idempotency test.
-- **Open threads:** Rename re-pointing remains a separate backlog item after heal CLI.
+- **What we did:** `brain heal [dir]` wired in `src/cli.ts` via `src/commands/heal.ts` (`--dry-run`, `--json`, README-style text). Tests in `test/heal-command.test.ts` including dist/cli E2E and idempotency.
+- **Where we stopped:** ROADMAP v0.4 heal CLI + idempotency tests ticked.
+- **Next steps:** Rename handling (re-point CONTEXT/observation paths). Then `brain heal --commit`.
+- **Open threads:** README still says "shipping in v0.4"; honesty pass is a later backlog item.
