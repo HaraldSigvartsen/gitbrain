@@ -4,7 +4,7 @@
 > keep it under a screenful. Detail belongs in CONTEXT.md or DECISIONS.md.
 
 - **Date:** 2026-10-22
-- **What we did:** `src/heal/detect.ts` — `detectDrift(projectDir, changeSet, parsedBrain)` → `DriftReport` (close/supersede candidates, stale CONTEXT paths, ledger mismatches). Decision `subjectPaths` from Context/Choice backticks in `parse.ts`. `test/heal-detect.test.ts` (31 tests total).
-- **Where we stopped:** ROADMAP v0.3 drift detector + fixture tests ticked. `npm run check` + `npm run build` green.
-- **Next steps:** `src/heal/apply.ts` then `brain heal` CLI (`--dry-run`, `--json`).
-- **Open threads:** Rename re-pointing is the backlog item after heal CLI; detect skips close on rename sources.
+- **What we did:** `src/heal/apply.ts` — `applyDriftReport` updates OBSERVATIONS/DECISIONS markdown (`> healed <date> — …`, status → fixed/superseded), `brain.json`, `.brain/reports/<date>.md`, and `last_reconciled_sha`. `test/heal-apply.test.ts` (35 tests total).
+- **Where we stopped:** ROADMAP v0.4 apply unit ticked; `brain heal` CLI not wired yet.
+- **Next steps:** `brain heal [dir]` with `--dry-run` / `--json`, README-format output, E2E idempotency test.
+- **Open threads:** Rename re-pointing remains a separate backlog item after heal CLI.

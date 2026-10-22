@@ -9,7 +9,7 @@
 | `src/brain.ts`          | The contract: `.brain/` file names, paths, and the `Ledger` types.                                          |
 | `src/templates.ts`      | Initial `.brain/` file contents. These templates double as the format specification.                        |
 | `src/git/`              | Read-only git access via `execFile("git", …)`. `diff.ts` collects rename-aware change sets.                 |
-| `src/heal/` _(planned)_ | Drift detection and application. Never mutates anything outside `.brain/`, never touches git history.       |
+| `src/heal/`             | Drift detection (`detect.ts`) and application (`apply.ts`). Never mutates anything outside `.brain/`, never touches git history. |
 
 ## Data flow
 
