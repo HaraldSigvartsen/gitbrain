@@ -11,6 +11,10 @@ import {
   resolveSinceOption,
 } from "../src/git/diff.js";
 import { GitError } from "../src/git/exec.js";
+import { isWindows } from "./helpers/platform.js";
+
+const heavyGitTimeout = isWindows ? 180_000 : 60_000;
+const mediumGitTimeout = isWindows ? 120_000 : 15_000;
 
 function tmpRepo(): string {
   const dir = mkdtempSync(join(tmpdir(), "gitbrain-git-"));
@@ -187,7 +191,7 @@ describe("collectChangeSet", () => {
     expect(change.capped).toBe(true);
     expect(change.commits).toHaveLength(500);
     },
-    60_000,
+    heavyGitTimeout,
   );
 
   it("honours --since on a first run (ref)", () => {
@@ -205,7 +209,7 @@ describe("collectChangeSet", () => {
     const change = collectChangeSet(repo, null, { since: floor });
     expect(change.capped).toBe(false);
     expect(change.commits).toHaveLength(40);
-  });
+  }, mediumGitTimeout);
 
   it("never reconciles older than last_reconciled_sha when --since is older", () => {
     const repo = tmpRepo();

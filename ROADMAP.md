@@ -71,6 +71,8 @@ status, added, removed, previousPath? }, touchedPaths }`
       are no hits; `brain lint` on validation errors)
 - [x] Large histories: first-run commit cap without full `rev-list`, `brain heal --since`
       (commit ref or ISO date), 1k-commit fixture test
+- [x] Windows: posix-normalised repo paths in git change sets and heal reports; CI matrix
+      (ubuntu, macos, windows × Node 20 and 22)
 - [ ] npm publish as `@haraldsigvartsen/gitbrain` (check whether the bare `gitbrain`
       name became available / request transfer)
 - [ ] README: real demo GIF (replace the ASCII sketch), social preview image

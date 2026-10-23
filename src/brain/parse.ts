@@ -10,6 +10,7 @@ import {
   type ObservationStatus,
 } from "../brain.js";
 import { readLedger } from "../commands/status.js";
+import { toPosixRepoPath } from "../path.js";
 
 export type ObservationPriority = "CRITICAL" | "IMPORTANT" | "OPPORTUNITY" | "MINOR";
 
@@ -207,7 +208,7 @@ export function looksLikeRepoPath(candidate: string): boolean {
 }
 
 export function normalizeContextPath(candidate: string): string | null {
-  const trimmed = candidate.trim().replace(/\\/g, "/").replace(/\/+/g, "/");
+  const trimmed = toPosixRepoPath(candidate.trim());
   if (!looksLikeRepoPath(trimmed)) {
     return null;
   }

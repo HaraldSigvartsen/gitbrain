@@ -1,5 +1,5 @@
-import { relative } from "node:path";
 import { type CliTheme, createTheme } from "../cli/theme.js";
+import { posixRelativePath } from "../path.js";
 import { parseBrain } from "../brain/parse.js";
 import { commitBrainMemory, type CommitBrainResult } from "../git/commit-brain.js";
 import { collectChangeSet, EMPTY_TREE_SHA } from "../git/diff.js";
@@ -123,7 +123,7 @@ export function formatHealHumanOutput(result: HealResult, theme: CliTheme = crea
       lines.push(theme.dim("Dry run — no files written."), "");
     }
   } else if (apply.reportPath) {
-    const rel = relative(result.projectDir, apply.reportPath);
+    const rel = posixRelativePath(result.projectDir, apply.reportPath);
     lines.push(theme.dim(`Wrote memory drift report → ${rel}`), "");
   }
 

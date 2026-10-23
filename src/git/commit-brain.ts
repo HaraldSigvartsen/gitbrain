@@ -1,4 +1,3 @@
-import { relative } from "node:path";
 import {
   BRAIN_DIR,
   CONTEXT_FILE,
@@ -7,6 +6,7 @@ import {
   OBSERVATIONS_FILE,
 } from "../brain.js";
 import type { ApplyResult } from "../heal/apply.js";
+import { posixRelativePath, toPosixRepoPath } from "../path.js";
 import { git } from "./exec.js";
 
 export interface CommitBrainResult {
@@ -14,10 +14,6 @@ export interface CommitBrainResult {
   commitSha: string | null;
   message: string | null;
   paths: string[];
-}
-
-function posixPath(path: string): string {
-  return path.replace(/\\/g, "/");
 }
 
 /** Paths under `.brain/` that heal wrote on this run (repo-relative, posix). */
@@ -36,13 +32,13 @@ export function brainPathsWrittenByHeal(projectDir: string, apply: ApplyResult):
     paths.push(`${BRAIN_DIR}/${LEDGER_FILE}`);
   }
   if (apply.reportPath) {
-    paths.push(posixPath(relative(projectDir, apply.reportPath)));
+    paths.push(posixRelativePath(projectDir, apply.reportPath));
   }
   return paths;
 }
 
 function assertUnderBrain(repoRelativePath: string): void {
-  const normalised = posixPath(repoRelativePath);
+  const normalised = toPosixRepoPath(repoRelativePath);
   if (normalised === BRAIN_DIR || normalised.startsWith(`${BRAIN_DIR}/`)) {
     return;
   }
@@ -54,7 +50,7 @@ function listStagedPaths(projectDir: string): string[] {
   if (!out) {
     return [];
   }
-  return out.split("\n").filter(Boolean).map(posixPath);
+  return out.split("\n").filter(Boolean).map(toPosixRepoPath);
 }
 
 function formatCommitMessage(apply: ApplyResult): string {

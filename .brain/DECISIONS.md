@@ -16,6 +16,13 @@ IDs are sequential (D-0001, D-0002, …) and are never reused.
 
 ---
 
+## D-0007 — Repo paths are always posix in brains and drift output
+- **Date:** 2026-10-23
+- **Status:** active
+- **Context:** Windows git and editors can emit backslash paths; mixed separators break drift matching and make reports non-portable.
+- **Choice:** Centralise `toPosixRepoPath` in `src/path.ts`; normalise git name-status/numstat paths, CONTEXT/`Where:` parsing, heal CLI report paths, and staged `.brain/` paths for commit. CI runs on ubuntu/macos/windows with Node 20 and 22. Rejected: leaving paths OS-native in markdown.
+- **Consequences:** All repo-relative paths in memory files and reports use `/`. Filesystem access still uses `node:path` joins under the project root.
+
 ## D-0006 — First-run cap uses rev-list count/skip; heal --since is a floor ref
 - **Date:** 2026-10-23
 - **Status:** active

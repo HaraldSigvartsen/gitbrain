@@ -22,6 +22,7 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 - `src/version.ts` — `VERSION`, kept in sync with package.json by `test/version.test.ts`.
 - `test/` — vitest; every test builds its own project in a tmpdir, nothing shared.
 - `docs/logo.svg` — the logo used in the README.
+- `src/path.ts` — `toPosixRepoPath` / `posixRelativePath`; repo-relative paths always use `/`.
 - `src/git/exec.ts` — `git -C <repo> …` wrapper; friendly error when not a git repo.
 - `src/git/diff.ts` — `collectChangeSet(dir, lastReconciledSha, { since? })` → commits, per-file stats, touched paths; first-run cap uses `rev-list --count`/`--skip` (not full history); optional `--since` ref/date floor.
 - `src/brain/parse.ts` — parse DECISIONS/OBSERVATIONS/CONTEXT paths; reconcile markdown ↔ `brain.json`.

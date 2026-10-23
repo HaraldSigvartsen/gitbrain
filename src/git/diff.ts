@@ -1,3 +1,4 @@
+import { toPosixRepoPath } from "../path.js";
 import { git, GitError } from "./exec.js";
 
 /** Git's canonical empty tree object id — valid parent for the first commit's diff. */
@@ -69,13 +70,13 @@ function parseNumstat(stdout: string): {
     }
     const line = { added: toCount(match[1]!), removed: toCount(match[2]!) };
     if (match[3] !== "") {
-      counts.set(match[3], line);
+      counts.set(toPosixRepoPath(match[3]), line);
       i += 1;
     } else {
       const previousPath = tokens[i + 1];
       const path = tokens[i + 2];
       if (previousPath !== undefined && path !== undefined) {
-        renames.set(path, line);
+        renames.set(toPosixRepoPath(path), line);
       }
       i += 3;
     }
@@ -101,14 +102,14 @@ function parseNameStatus(stdout: string): NameStatusRow[] {
     const parts = line.split("\t");
     const code = parts[0] ?? "";
     if (code.startsWith("A")) {
-      rows.push({ status: "added", path: parts[1] ?? "" });
+      rows.push({ status: "added", path: toPosixRepoPath(parts[1] ?? "") });
     } else if (code.startsWith("M")) {
-      rows.push({ status: "modified", path: parts[1] ?? "" });
+      rows.push({ status: "modified", path: toPosixRepoPath(parts[1] ?? "") });
     } else if (code.startsWith("D")) {
-      rows.push({ status: "deleted", path: parts[1] ?? "" });
+      rows.push({ status: "deleted", path: toPosixRepoPath(parts[1] ?? "") });
     } else if (code.startsWith("R")) {
-      const previousPath = parts[1] ?? "";
-      const path = parts[2] ?? "";
+      const previousPath = toPosixRepoPath(parts[1] ?? "");
+      const path = toPosixRepoPath(parts[2] ?? "");
       rows.push({ status: "renamed", path, previousPath });
     }
   }
