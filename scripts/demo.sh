@@ -122,7 +122,7 @@ do_vhs() {
     echo "missing tape: $TAPE" >&2
     exit 1
   fi
-  GITBRAIN_ROOT="$ROOT" vhs record "$TAPE"
+  GITBRAIN_ROOT="$ROOT" vhs "$TAPE"
   echo "Wrote $DEMO_GIF"
 }
 

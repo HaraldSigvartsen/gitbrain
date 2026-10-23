@@ -75,4 +75,4 @@ status, added, removed, previousPath? }, touchedPaths }`
       (ubuntu, macos, windows × Node 20 and 22)
 - [ ] npm publish as `@haraldsigvartsen/gitbrain` (check whether the bare `gitbrain`
       name became available / request transfer)
-- [ ] README: real demo GIF (replace the ASCII sketch), social preview image
+- [x] README: real demo GIF (replace the ASCII sketch), social preview image

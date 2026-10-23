@@ -51,6 +51,12 @@
       "title": "Optional LLM summary via native fetch (no new runtime deps)",
       "status": "active",
       "updated": "2026-10-23"
+    },
+    {
+      "id": "D-0009",
+      "title": "README demo is a committed GIF; the transcript stays canonical",
+      "status": "active",
+      "updated": "2026-10-23"
     }
   ],
   "observations": [

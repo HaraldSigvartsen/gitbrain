@@ -89,17 +89,11 @@ The IDs are the trick. Because every entry is addressable and every observation 
 
 ## How healing works
 
-`brain heal` runs on a schedule (or after big refactors) and does four things. Example output from a small fixture repo where an observation still pointed at a deleted file:
+`brain heal` runs on a schedule (or after big refactors) and does four things. Recorded from a real run on the fixture repo in [`examples/demo-project/`](examples/demo-project/) — an observation still pointed at a file the code had deleted:
 
-```
-$ brain heal
-Reconciling .brain against git since repo start (2 commits)…
+![gitbrain demo — drift, then heal](docs/demo.gif)
 
-  ✓ O-0001  "Race in checkout queue"                → closed
-            src/checkout/queue.ts was deleted in the reconciled range
-
-Wrote memory drift report → .brain/reports/2026-10-22.md
-```
+_Reproduced with `./scripts/demo.sh` after `npm run build`; GIF via [Charm VHS](https://github.com/charmbracelet/vhs) (`./scripts/demo.sh --vhs`); text transcript: [demo-transcript.txt](examples/demo-project/demo-transcript.txt)._
 
 Flags: `--dry-run` (print the report, write nothing), `--json` (machine-readable), `--commit` (commit only `.brain/` changes locally — never pushes), `--since <ref|date>` (limit how far back to scan on the first run or when catching up — never older than `last_reconciled_sha`). First runs without `--since` cap at 500 commits. To run on a schedule, use the [GitHub Action example](examples/github-action/heal.yml) or [cron / launchd recipes](docs/scheduling.md).
 
@@ -110,7 +104,7 @@ Flags: `--dry-run` (print the report, write nothing), `--json` (machine-readable
 
 Every change lands as a reviewable git commit. Your memory's edit history _is_ its audit trail.
 
-Walkthrough: [`examples/demo-project/`](examples/demo-project/) (before/after snapshots). From this repo after `npm run build`, run `./scripts/demo.sh` for a live terminal demo, or read [`demo-transcript.txt`](examples/demo-project/demo-transcript.txt). Optional GIF: `./scripts/demo.sh --vhs` when [Charm VHS](https://github.com/charmbracelet/vhs) is installed.
+Walkthrough with before/after snapshots: [`examples/demo-project/`](examples/demo-project/).
 
 ## Tell your agents
 

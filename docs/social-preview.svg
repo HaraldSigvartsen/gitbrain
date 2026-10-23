@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 640" width="1200" height="640" role="img" aria-label="gitbrain — self-healing project memory for AI coding agents">
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8b5cf6"/>
+      <stop offset="1" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d1026"/>
+      <stop offset="1" stop-color="#101733"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.22" cy="0.5" r="0.6">
+      <stop offset="0" stop-color="#8b5cf6" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="640" fill="url(#bg)"/>
+  <rect width="1200" height="640" fill="url(#glow)"/>
+
+  <!-- logo mark -->
+  <g transform="translate(96,192) scale(3.2)">
+    <rect x="4" y="4" width="112" height="112" rx="26" fill="url(#accent)"/>
+    <g stroke="#ffffff" stroke-width="9" stroke-linecap="round" fill="none">
+      <path d="M42 34 V 78"/>
+      <path d="M42 60 H 66 Q 80 60 80 46 V 42"/>
+    </g>
+    <g fill="#ffffff">
+      <circle cx="42" cy="30" r="9"/>
+      <circle cx="42" cy="86" r="9"/>
+      <circle cx="80" cy="36" r="9"/>
+    </g>
+  </g>
+
+  <!-- wordmark -->
+  <text x="520" y="290" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="104" font-weight="700" fill="#ffffff">gitbrain</text>
+  <text x="524" y="360" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="38" fill="#a5b0d0">Self-healing project memory</text>
+  <text x="524" y="410" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="38" fill="#a5b0d0">for AI coding agents</text>
+
+  <!-- terminal line -->
+  <rect x="524" y="456" rx="12" ry="12" width="556" height="64" fill="#0a0e20" stroke="#26304f"/>
+  <text x="552" y="497" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="30" fill="#9fb0d8">
+    <tspan fill="#8b5cf6">$</tspan> brain heal  <tspan fill="#34d399">✓ memory reconciled with git</tspan>
+  </text>
+</svg>

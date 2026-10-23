@@ -16,6 +16,13 @@ IDs are sequential (D-0001, D-0002, …) and are never reused.
 
 ---
 
+## D-0009 — README demo is a committed GIF; the transcript stays canonical
+- **Date:** 2026-10-23
+- **Status:** active
+- **Context:** The README needs a real demo (v0.7), not an ASCII sketch. A GIF is a binary asset in a text repo and can silently rot when CLI output changes.
+- **Choice:** `docs/demo.gif` (647KB, 920×520) is recorded by `./scripts/demo.sh --vhs` from `scripts/demo.tape`; the demo uses a fixed heal date so the committed text transcript (`examples/demo-project/demo-transcript.txt`) regenerates byte-identically — if a change alters heal output, `--refresh` shows it in git and the GIF must be re-recorded. Fixed `vhs record <tape>` → `vhs <tape>` (current VHS CLI). Social preview lives at `docs/social-preview.svg` (source) and `docs/social-preview.jpg` (1200×640, 87KB) for GitHub repo settings upload.
+- **Consequences:** Regenerate both together: `npm run build && ./scripts/demo.sh --refresh && ./scripts/demo.sh --vhs`. The social preview upload itself is a manual repo-settings action (no stable API).
+
 ## D-0008 — Optional LLM summary via native fetch (no new runtime deps)
 - **Date:** 2026-10-23
 - **Status:** active
