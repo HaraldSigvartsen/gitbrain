@@ -1,8 +1,9 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync } from "node:fs";
+import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { ensureDistBuilt } from "./ensure-dist.js";
 import { createTheme, shouldUseColor } from "../src/cli/theme.js";
 import { formatHealHumanOutput } from "../src/commands/heal.js";
 import { runInit } from "../src/commands/init.js";
@@ -45,13 +46,10 @@ describe("cli theme", () => {
 });
 
 describe("brain CLI UX", () => {
-  const cliPath = join(import.meta.dirname, "../dist/cli.js");
+  let cliPath: string;
 
   beforeAll(() => {
-    execFileSync("npm", ["run", "build"], { cwd: join(import.meta.dirname, ".."), stdio: "pipe" });
-    if (!existsSync(cliPath)) {
-      throw new Error("dist/cli.js missing after build");
-    }
+    cliPath = ensureDistBuilt();
   });
 
   it("does not emit ANSI escapes when stdout is piped", () => {

@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import { BRAIN_DIR } from "../src/brain.js";
 import { VERSION } from "../src/version.js";
+import { ensureDistBuilt } from "./ensure-dist.js";
 
 const repoRoot = join(import.meta.dirname, "..");
 
@@ -39,7 +40,7 @@ describe("global install from npm pack", () => {
   let brainBin: string;
 
   beforeAll(() => {
-    execFileSync("npm", ["run", "build"], { cwd: repoRoot, stdio: "pipe" });
+    ensureDistBuilt();
     const tarball = npmPackTarball(workDir);
     execFileSync("npm", ["install", "-g", "--prefix", npmPrefix, tarball], {
       cwd: workDir,
