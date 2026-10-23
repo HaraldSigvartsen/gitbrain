@@ -76,3 +76,14 @@ status, added, removed, previousPath? }, touchedPaths }`
 - [ ] npm publish as `@haraldsigvartsen/gitbrain` (check whether the bare `gitbrain`
       name became available / request transfer)
 - [x] README: real demo GIF (replace the ASCII sketch), social preview image
+
+## Blockers
+
+- **npm publish (v0.7)** — needs Harald. Publishing is an outward-facing registry
+  action and requires npm credentials an automated run must not use. Facts checked
+  2026-10-23: the bare `gitbrain` name is still taken (unrelated package, v0.2.1,
+  last modified 2026-04-11 — a name transfer is unlikely to come quickly);
+  `@haraldsigvartsen/gitbrain` is unpublished and ready. When ready:
+  `npm run build && npm publish --access public` (pack contents are already covered
+  by `test/install-pack.test.ts`). Related manual step: upload
+  `docs/social-preview.jpg` in repo Settings → Social preview.
