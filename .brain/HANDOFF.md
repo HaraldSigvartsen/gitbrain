@@ -4,7 +4,7 @@
 > keep it under a screenful. Detail belongs in CONTEXT.md or DECISIONS.md.
 
 - **Date:** 2026-10-23
-- **What we did:** P2 Windows — `src/path.ts`, posix paths in git diff + heal output; CI matrix os×Node 20/22; install test finds `brain.cmd` on Windows.
-- **Where we stopped:** branch `agent/windows-paths-ci` ready for PR.
-- **Next steps:** P2 optional LLM summary; launch prep drafts in gitbrain-private.
+- **What we did:** P2 optional LLM — `src/llm/*`, `--summarize` on `heal` and `ask`, docs + D-0008.
+- **Where we stopped:** branch `agent/llm-summarize` ready for PR.
+- **Next steps:** launch prep drafts in `~/Code/gitbrain-private/launch/` (outside repo).
 - **Open threads:** Heal flags any backtick path in CONTEXT/HANDOFF, not only architecture-map bullets.

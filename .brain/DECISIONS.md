@@ -16,6 +16,13 @@ IDs are sequential (D-0001, D-0002, …) and are never reused.
 
 ---
 
+## D-0008 — Optional LLM summary via native fetch (no new runtime deps)
+- **Date:** 2026-10-23
+- **Status:** active
+- **Context:** v0.6 roadmap calls for optional LLM summarisation on `brain heal` and `brain ask` without making network calls the default or adding SDK dependencies.
+- **Choice:** `--summarize` flags call an OpenAI-compatible `POST /v1/chat/completions` using Node’s built-in `fetch`. Keys and model come from env (`GITBRAIN_LLM_*`, fallback `OPENAI_API_KEY`). Prompts only include structured drift or retrieval facts already computed offline. Rejected: bundling OpenAI SDK; reading `.env` files from the repo.
+- **Consequences:** Default CLI stays offline. Users who opt in must supply credentials via environment variables only. Tests inject a mock `fetch`.
+
 ## D-0007 — Repo paths are always posix in brains and drift output
 - **Date:** 2026-10-23
 - **Status:** active

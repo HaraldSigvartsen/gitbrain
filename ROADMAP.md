@@ -62,7 +62,7 @@ status, added, removed, previousPath? }, touchedPaths }`
 
 - [x] Deterministic retrieval over `.brain/` of the current project; `--all` to search
       sibling projects' brains
-- [ ] LLM summarisation strictly optional (user-configured key, off by default)
+- [x] LLM summarisation strictly optional (user-configured key, off by default)
 
 ## v0.7 — launch
 

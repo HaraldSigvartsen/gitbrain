@@ -39,6 +39,9 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 - `docs/scheduling.md` — cron, launchd, and CI scheduling notes.
 - `src/ask/retrieve.ts` — offline keyword retrieval over `.brain/` markdown (`discoverBrainRoots`, `runAskSearch`).
 - `src/commands/ask.ts` — `runAsk`, human/JSON formatters for `brain ask`.
+- `src/llm/config.ts` — env-based LLM config for optional `--summarize` (`GITBRAIN_LLM_*`, `OPENAI_API_KEY`).
+- `src/llm/client.ts` — OpenAI-compatible chat completions via native `fetch`.
+- `src/llm/summarize-heal.ts` / `summarize-ask.ts` — prompts built from heal/ask results only.
 
 ## Conventions
 
