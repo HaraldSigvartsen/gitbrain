@@ -56,15 +56,19 @@ describe("global install from npm pack", () => {
   const npmPrefix = join(workDir, "npm-prefix");
   let brainBin: string;
 
-  beforeAll(() => {
-    ensureDistBuilt();
-    const tarball = npmPackTarball(workDir);
-    execNpm(["install", "-g", "--prefix", npmPrefix, tarball], {
-      cwd: workDir,
-      stdio: "pipe",
-    });
-    brainBin = resolveGlobalBrainBin(npmPrefix);
-  });
+  beforeAll(
+    () => {
+      ensureDistBuilt();
+      const tarball = npmPackTarball(workDir);
+      execNpm(["install", "-g", "--prefix", npmPrefix, tarball], {
+        cwd: workDir,
+        stdio: "pipe",
+      });
+      brainBin = resolveGlobalBrainBin(npmPrefix);
+    },
+    // npm pack + global install easily exceeds the 10s default on slow CI runners.
+    120_000,
+  );
 
   it("exposes --version matching package.json", () => {
     const version = execFileSync(brainBin, ["--version"], {

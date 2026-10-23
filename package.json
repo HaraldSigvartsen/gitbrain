@@ -20,6 +20,9 @@
   "files": [
     "dist",
     "docs",
+    "!docs/demo.gif",
+    "!docs/social-preview.jpg",
+    "!docs/social-preview.svg",
     "README.md",
     "CHANGELOG.md",
     "LICENSE",
