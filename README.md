@@ -154,7 +154,7 @@ gitbrain is built in public by a scheduled AI agent — one roadmap unit per run
 
 - **v0.2–v0.4** — shipped in **0.2.0**: git change-set collector, drift detector, `brain heal` (`--dry-run`, `--json`, `--commit`, idempotent)
 - **v0.5** — agent emitter recipes + `brain lint` (format validation) + examples
-- **v0.6** — `brain ask` (local, offline retrieval over one or many brains)
+- **v0.6** — `brain ask` (local, offline retrieval); optional `--summarize` on `heal` / `ask` (API key via env, off by default)
 - **v0.7** — npm publish + launch (demo GIF, social preview)
 
 Details and acceptance criteria per unit: [ROADMAP.md](ROADMAP.md).

@@ -3,8 +3,16 @@ import { Command } from "commander";
 import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { LEDGER_FILE, brainDir } from "./brain.js";
-import { askResultToJson, formatAskHumanOutput, runAsk } from "./commands/ask.js";
-import { formatHealHumanOutput, healResultToJson, runHeal } from "./commands/heal.js";
+import { askResultToJson, formatAskHumanOutput, formatAskSummaryBlock, runAsk } from "./commands/ask.js";
+import {
+  formatHealHumanOutput,
+  formatHealSummaryBlock,
+  healResultToJson,
+  runHeal,
+} from "./commands/heal.js";
+import { requireLlmConfig } from "./llm/config.js";
+import { summarizeAskResult } from "./llm/summarize-ask.js";
+import { summarizeHealResult } from "./llm/summarize-heal.js";
 import { formatLintHumanOutput, lintResultToJson, runLint } from "./commands/lint.js";
 import { parseAgentToolsList } from "./agents/emit.js";
 import { runInit } from "./commands/init.js";
@@ -84,26 +92,47 @@ program
     "only consider history after this commit/ref or ISO date (never older than last_reconciled_sha)",
   )
   .option("--json", "emit machine-readable JSON on stdout")
+  .option(
+    "--summarize",
+    "optional LLM summary (needs GITBRAIN_LLM_API_KEY or OPENAI_API_KEY; calls the configured API)",
+  )
   .action(
-    (
+    async (
       dir: string,
-      options: { dryRun?: boolean; commit?: boolean; since?: string; json?: boolean },
+      options: {
+        dryRun?: boolean;
+        commit?: boolean;
+        since?: string;
+        json?: boolean;
+        summarize?: boolean;
+      },
     ) => {
-    const { quiet } = globalOpts();
-    const theme = themeFromGlobals();
-    const projectDir = resolve(dir);
-    const result = runHeal(projectDir, {
-      dryRun: options.dryRun,
-      commit: options.commit,
-      since: options.since,
-    });
-    if (options.json) {
-      console.log(JSON.stringify(healResultToJson(result), null, 2));
-      return;
-    }
-    if (!quiet) {
-      console.log("\n" + formatHealHumanOutput(result, theme));
-    }
+      const { quiet } = globalOpts();
+      const theme = themeFromGlobals();
+      const projectDir = resolve(dir);
+      const result = runHeal(projectDir, {
+        dryRun: options.dryRun,
+        commit: options.commit,
+        since: options.since,
+      });
+      let summary: string | undefined;
+      if (options.summarize) {
+        const llm = requireLlmConfig();
+        summary = await summarizeHealResult(result, llm);
+      }
+      if (options.json) {
+        console.log(JSON.stringify(healResultToJson(result, { summary }), null, 2));
+        return;
+      }
+      if (!quiet) {
+        let text = formatHealHumanOutput(result, theme);
+        if (summary) {
+          text = text.trimEnd() + "\n" + formatHealSummaryBlock(summary, theme);
+        }
+        console.log("\n" + text);
+      } else if (summary) {
+        console.log(formatHealSummaryBlock(summary, theme).trimEnd());
+      }
     },
   );
 
@@ -115,11 +144,15 @@ program
   .option("--all", "also search sibling projects under the same parent directory")
   .option("--limit <n>", "maximum number of hits to show", (value) => Number.parseInt(value, 10))
   .option("--json", "emit machine-readable JSON on stdout")
+  .option(
+    "--summarize",
+    "optional LLM answer (needs GITBRAIN_LLM_API_KEY or OPENAI_API_KEY; calls the configured API)",
+  )
   .action(
-    (
+    async (
       dir: string,
       queryParts: string[],
-      options: { all?: boolean; limit?: number; json?: boolean },
+      options: { all?: boolean; limit?: number; json?: boolean; summarize?: boolean },
     ) => {
       const { quiet } = globalOpts();
       const dirArg = resolve(dir);
@@ -131,8 +164,13 @@ program
           ? queryParts.join(" ")
           : [dir === "." ? "" : dir, ...queryParts].filter(Boolean).join(" ");
       const result = runAsk(projectDir, query.trim(), { all: options.all, limit: options.limit });
+      let summary: string | undefined;
+      if (options.summarize) {
+        const llm = requireLlmConfig();
+        summary = await summarizeAskResult(result, llm);
+      }
       if (options.json) {
-        console.log(JSON.stringify(askResultToJson(result), null, 2));
+        console.log(JSON.stringify(askResultToJson(result, { summary }), null, 2));
         if (result.hits.length === 0) {
           process.exit(EXIT_FAIL);
         }
@@ -145,7 +183,13 @@ program
         process.exit(EXIT_FAIL);
       }
       if (!quiet) {
-        console.log("\n" + formatAskHumanOutput(result) + "\n");
+        let text = formatAskHumanOutput(result);
+        if (summary) {
+          text = text + "\n" + formatAskSummaryBlock(summary);
+        }
+        console.log("\n" + text + "\n");
+      } else if (summary) {
+        console.log(formatAskSummaryBlock(summary));
       }
     },
   );

@@ -135,6 +135,10 @@ export function formatHealHumanOutput(result: HealResult, theme: CliTheme = crea
   return lines.join("\n").trimEnd() + "\n";
 }
 
+export function formatHealSummaryBlock(summary: string, theme: CliTheme = createTheme(false)): string {
+  return ["", theme.dim("Summary"), summary.trim(), ""].join("\n").trimEnd() + "\n";
+}
+
 export interface HealJsonPayload {
   dryRun: boolean;
   sinceSha: string;
@@ -148,11 +152,12 @@ export interface HealJsonPayload {
   staleContextPaths: StaleContextPath[];
   ledgerMismatches: Array<{ message: string }>;
   commit: CommitBrainResult | null;
+  summary?: string;
 }
 
-export function healResultToJson(result: HealResult): HealJsonPayload {
+export function healResultToJson(result: HealResult, options?: { summary?: string }): HealJsonPayload {
   const { report, apply } = result;
-  return {
+  const payload: HealJsonPayload = {
     dryRun: result.dryRun,
     sinceSha: report.sinceSha,
     headSha: report.headSha,
@@ -166,4 +171,8 @@ export function healResultToJson(result: HealResult): HealJsonPayload {
     ledgerMismatches: report.ledgerMismatches.map((m) => ({ message: m.message })),
     commit: result.commit,
   };
+  if (options?.summary !== undefined) {
+    payload.summary = options.summary;
+  }
+  return payload;
 }

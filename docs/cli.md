@@ -32,8 +32,8 @@ Commands that write JSON (`--json`) still use these codes; parse stdout only whe
 | ------- | ----- |
 | `brain init` | Creates `.brain/`; refuses when memory already exists (use `--agents` to refresh snippets only). |
 | `brain status` | Read-only ledger summary. |
-| `brain heal` | Reconciles memory; `--dry-run` previews; `--commit` commits only `.brain/` changes locally; `--since <ref\|date>` limits history (first run still capped at 500 commits unless the window is smaller). |
+| `brain heal` | Reconciles memory; `--dry-run` previews; `--commit` commits only `.brain/` changes locally; `--since <ref\|date>` limits history (first run still capped at 500 commits unless the window is smaller). Optional `--summarize` calls an OpenAI-compatible chat API (off by default; needs `GITBRAIN_LLM_API_KEY` or `OPENAI_API_KEY`; optional `GITBRAIN_LLM_BASE_URL`, `GITBRAIN_LLM_MODEL`). |
 | `brain lint` | Validates markdown ↔ `brain.json`; exits `1` when issues are found. |
-| `brain ask` | Offline keyword search; exits `1` when there are no hits. |
+| `brain ask` | Offline keyword search; exits `1` when there are no hits. Optional `--summarize` uses the same LLM env vars to turn hits into a short answer. |
 
 Agent setup and scheduling: [agents.md](agents.md), [scheduling.md](scheduling.md).

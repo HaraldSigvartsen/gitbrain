@@ -45,6 +45,12 @@
       "title": "Repo paths are always posix in brains and drift output",
       "status": "active",
       "updated": "2026-10-23"
+    },
+    {
+      "id": "D-0008",
+      "title": "Optional LLM summary via native fetch (no new runtime deps)",
+      "status": "active",
+      "updated": "2026-10-23"
     }
   ],
   "observations": [

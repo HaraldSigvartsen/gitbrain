@@ -32,16 +32,28 @@ export function formatAskHumanOutput(result: AskSearchResult): string {
   return lines.join("\n").trimEnd();
 }
 
-export function askResultToJson(result: AskSearchResult): {
+export function askResultToJson(
+  result: AskSearchResult,
+  options?: { summary?: string },
+): {
   query: string;
   projects: string[];
   hitCount: number;
   hits: AskHit[];
+  summary?: string;
 } {
-  return {
+  const payload = {
     query: result.query,
     projects: result.roots.map((r) => r.label),
     hitCount: result.hits.length,
     hits: result.hits,
   };
+  if (options?.summary !== undefined) {
+    return { ...payload, summary: options.summary };
+  }
+  return payload;
+}
+
+export function formatAskSummaryBlock(summary: string): string {
+  return ["", "Summary", summary.trim(), ""].join("\n").trimEnd();
 }
