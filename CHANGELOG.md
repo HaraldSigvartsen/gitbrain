@@ -7,9 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-23
+
 ### Added
 
+- `brain ask` — local, offline keyword retrieval over a project's `.brain/` (`--all` for sibling projects, `--json`)
+- `brain lint` — markdown ↔ ledger validation (duplicate IDs, missing registrations, broken sequences; `--json`, non-zero exit on issues)
+- `brain init --agents` — paste-ready instruction snippets for Claude Code, Codex, Cursor, ZCode/OpenCode and Copilot (`docs/agents.md`)
 - `brain heal --summarize` and `brain ask --summarize` — optional OpenAI-compatible LLM summary (env-configured API key; off by default)
+- Scheduling recipes: GitHub Action that opens a PR on drift (`examples/github-action/heal.yml`) plus cron/launchd notes (`docs/scheduling.md`)
+- `examples/demo-project/` walkthrough, `scripts/demo.sh` terminal demo (`--vhs` GIF recording), README demo GIF and social preview
+- Cross-platform support: posix-normalised repo paths; CI on ubuntu/macos/windows × Node 20 and 22
+
+### Fixed
+
+- `brain heal` no longer flags bare brain-file names (`brain.json`, `CONTEXT.md`) as stale — they resolve inside `.brain/` (O-0001)
+- Recorded SHAs are hex-validated before reaching git's argv (option-injection guard); same-directory rename line counts no longer read as 0/0 (numstat parsed in `-z` form)
 
 ## [0.2.0] - 2026-10-22
 

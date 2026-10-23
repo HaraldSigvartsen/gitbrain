@@ -21,7 +21,9 @@ function commitAll(repo: string, message: string): string {
   return execFileSync("git", ["rev-parse", "HEAD"], { cwd: repo, encoding: "utf8" }).trim();
 }
 
-function brain(partial: Partial<ParsedBrain> & Pick<ParsedBrain, "observations" | "decisions">): ParsedBrain {
+function brain(
+  partial: Partial<ParsedBrain> & Pick<ParsedBrain, "observations" | "decisions">,
+): ParsedBrain {
   return {
     contextPaths: partial.contextPaths ?? [],
     ledgerMismatches: partial.ledgerMismatches ?? [],
@@ -195,6 +197,29 @@ describe("detectDrift", () => {
         expect.objectContaining({ path: "src/never-existed.ts", reason: "missing_at_head" }),
       ]),
     );
+  });
+
+  it("does not flag bare brain-file names as missing when .brain/ holds them (O-0001)", () => {
+    const repo = tmpRepo();
+    mkdirSync(join(repo, ".brain"), { recursive: true });
+    writeFileSync(join(repo, ".brain", "brain.json"), "{}\n");
+    writeFileSync(join(repo, "real.ts"), "x\n");
+    const base = commitAll(repo, "seed");
+
+    const changeSet = collectChangeSet(repo, base);
+    const report = detectDrift(
+      repo,
+      changeSet,
+      brain({
+        observations: [],
+        decisions: [],
+        contextPaths: ["brain.json", "real.ts", "ghost.md"],
+      }),
+    );
+
+    expect(report.staleContextPaths).toEqual([
+      expect.objectContaining({ path: "ghost.md", reason: "missing_at_head" }),
+    ]);
   });
 
   it("returns no candidates when the brain matches a healthy repo", () => {

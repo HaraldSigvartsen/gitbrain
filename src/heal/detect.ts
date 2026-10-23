@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { BRAIN_DIR } from "../brain.js";
 import type { LedgerMismatch, ParsedBrain } from "../brain/parse.js";
 import type { ChangeSet, FileChange } from "../git/diff.js";
 
@@ -154,6 +155,18 @@ function describeChange(file: FileChange, path: string): string {
   return `${path} changed (${file.status})`;
 }
 
+/**
+ * A mentioned path is present when it exists at the repo root OR inside `.brain/` —
+ * bare brain-file mentions (`brain.json`, `CONTEXT.md`, `reports/…`) resolve inside
+ * the brain directory rather than being flagged as missing (O-0001).
+ */
+function presentAtHead(projectDir: string, repoPath: string): boolean {
+  if (existsSync(join(projectDir, repoPath))) {
+    return true;
+  }
+  return existsSync(join(projectDir, BRAIN_DIR, repoPath));
+}
+
 function pathsWithDrift(
   paths: string[],
   changes: Map<string, FileChange>,
@@ -197,15 +210,11 @@ function pathsWithDrift(
   };
 }
 
-function mapCloseReason(
-  reason: CloseReason | SupersedeReason,
-): CloseReason {
+function mapCloseReason(reason: CloseReason | SupersedeReason): CloseReason {
   return reason === "path_deleted" ? "path_deleted" : "path_heavily_rewritten";
 }
 
-function mapSupersedeReason(
-  reason: CloseReason | SupersedeReason,
-): SupersedeReason {
+function mapSupersedeReason(reason: CloseReason | SupersedeReason): SupersedeReason {
   return reason === "path_deleted" ? "subject_deleted" : "subject_heavily_rewritten";
 }
 
@@ -286,7 +295,9 @@ export function detectDrift(
       contextRepoints.push({
         fromPath: contextPath,
         toPath: renamedTo,
-        detail: file ? describeChange(file, contextPath) : `${contextPath} was renamed to ${renamedTo}`,
+        detail: file
+          ? describeChange(file, contextPath)
+          : `${contextPath} was renamed to ${renamedTo}`,
       });
       continue;
     }
@@ -299,8 +310,7 @@ export function detectDrift(
       });
       continue;
     }
-    const abs = join(projectDir, contextPath);
-    if (!existsSync(abs)) {
+    if (!presentAtHead(projectDir, contextPath)) {
       seenStale.add(contextPath);
       staleContextPaths.push({
         path: contextPath,
@@ -313,8 +323,9 @@ export function detectDrift(
   staleContextPaths.sort((a, b) => a.path.localeCompare(b.path));
   closeCandidates.sort((a, b) => a.observationId.localeCompare(b.observationId));
   supersedeCandidates.sort((a, b) => a.decisionId.localeCompare(b.decisionId));
-  observationRepoints.sort((a, b) =>
-    a.observationId.localeCompare(b.observationId) || a.fromPath.localeCompare(b.fromPath),
+  observationRepoints.sort(
+    (a, b) =>
+      a.observationId.localeCompare(b.observationId) || a.fromPath.localeCompare(b.fromPath),
   );
   contextRepoints.sort((a, b) => a.fromPath.localeCompare(b.fromPath));
 

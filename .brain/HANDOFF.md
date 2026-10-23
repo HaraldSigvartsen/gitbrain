@@ -4,14 +4,17 @@
 > keep it under a screenful. Detail belongs in CONTEXT.md or DECISIONS.md.
 
 - **Date:** 2026-10-23
-- **What we did:** v0.7 demo assets — fixed `scripts/demo.sh --vhs` for the current
-  VHS CLI (`vhs <tape>`), recorded `docs/demo.gif` (647KB), replaced the README ASCII
-  sketch with it, and produced `docs/social-preview.jpg` (1200×640) from a new SVG
-  source (D-0009). Checked the bare npm name: `gitbrain` still taken by a dormant
-  v0.2.1 (untouched since 2026-04-11); scoped name confirmed unpublished.
-- **Where we stopped:** Both v0.7 launch assets committed locally, roadmap ticked.
-  Only `npm publish` remains — blocked on Harald (see ROADMAP Blockers).
-- **Next steps:** Harald: review + push, upload `docs/social-preview.jpg` in repo
-  Settings → Social preview, then `npm publish --access public` when ready.
-- **Open threads:** Heal flags any backtick path in CONTEXT/HANDOFF, not only
-  architecture-map bullets; O-0001 (bare brain-file names flagged stale) still open.
+- **What we did:** Closed out the project for first release: fixed O-0001 (bare
+  brain-file names now resolve inside `.brain/` via `presentAtHead`, regression-tested),
+  bumped to 0.3.0, wrote the 0.3.0 CHANGELOG (ask, lint, agents emitters, scheduling,
+  examples, LLM summarize, cross-platform). All roadmap units are shipped or parked
+  on Harald.
+- **Where we stopped:** Everything pushed to GitHub; the only remaining launch step
+  is the npm publish itself — no npm login on this machine, so it is literally:
+  `npm login`, then `npm publish --access public` (tarball contents verified via
+  `npm pack` dry run).
+- **Next steps:** Harald: `npm login && npm publish --access public`; upload
+  `docs/social-preview.jpg` in repo Settings → Social preview; then launch posts
+  (Show HN / r/ClaudeCode drafts) at his discretion.
+- **Open threads:** none in the ledger (O-0001 fixed). After publishing, update the
+  README quick-start install line to the npm package name.
