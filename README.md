@@ -46,7 +46,7 @@ brain status
 brain heal --dry-run   # preview drift; run `brain heal` on a schedule (or `brain heal --commit`)
 ```
 
-Commit the `.brain/` directory — memory is meant to be shared, diffed and reviewed like code. (Publishing to the npm registry as `@haraldsigvartsen/gitbrain` is on the [roadmap](ROADMAP.md); installing from GitHub works today.)
+Commit the `.brain/` directory — memory is meant to be shared, diffed and reviewed like code. (Publishing to the npm registry as `@haraldsigvartsen/gitbrain` is on the [roadmap](ROADMAP.md); installing from GitHub works today.) CLI flags and exit codes: [docs/cli.md](docs/cli.md).
 
 ## The `.brain` format
 

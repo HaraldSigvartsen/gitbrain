@@ -13,6 +13,8 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 ## Architecture map
 
 - `src/cli.ts` — commander entrypoint; all printing and exit codes live here, nowhere else.
+- `src/cli/theme.ts` — TTY-aware ANSI styling (`--color`, `--no-color`, `NO_COLOR`).
+- `docs/cli.md` — global flags and exit code reference.
 - `src/commands/init.ts` — `runInit(dir)`: scaffolds `.brain/`, refuses to overwrite.
 - `src/commands/status.ts` — `runStatus(dir)` + `readLedger(dir)`: ledger summary.
 - `src/brain.ts` — the contract: file names, `brainDir()`, `Ledger`/`LedgerEntry` types.

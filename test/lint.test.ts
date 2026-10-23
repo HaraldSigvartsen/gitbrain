@@ -172,9 +172,10 @@ describe("brain lint CLI", () => {
       execFileSync("node", [cliPath, "lint", project], { encoding: "utf8" });
     } catch (error: unknown) {
       threw = true;
-      const err = error as { status?: number; stdout?: string };
+      const err = error as { status?: number; stderr?: string; stdout?: string };
       expect(err.status).toBe(1);
-      expect(String(err.stdout)).toContain("error(s)");
+      const combined = String(err.stderr ?? "") + String(err.stdout ?? "");
+      expect(combined).toContain("error(s)");
     }
     expect(threw).toBe(true);
 

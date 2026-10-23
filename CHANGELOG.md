@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Git change-set collector (`src/git/diff.ts`), brain parser, drift detector, and heal apply path
 - Rename-aware re-pointing for observations and CONTEXT.md paths
 - Install-from-GitHub path verified via `npm pack` integration test
+- `docs/cli.md` — global flags (`--quiet`, `--color`) and exit codes
+- TTY-aware ANSI colours for human-readable command output
 
 ### Changed
 
