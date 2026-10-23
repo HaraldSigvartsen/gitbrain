@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { runHeal } from "../src/commands/heal.js";
+import { isWindows } from "./helpers/platform.js";
 
 const root = new URL("..", import.meta.url);
 const exampleRoot = new URL("examples/demo-project/", root);
@@ -33,7 +34,7 @@ describe("demo-project example", () => {
     expect(out).toContain("Wrote memory drift report");
   });
 
-  it("build-history.sh reproduces drift that heal repairs", () => {
+  it.skipIf(isWindows)("build-history.sh reproduces drift that heal repairs", () => {
     const script = new URL("build-history.sh", exampleRoot);
     const cli = new URL("dist/cli.js", root);
     expect(existsSync(script)).toBe(true);

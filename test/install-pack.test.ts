@@ -6,11 +6,13 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { BRAIN_DIR } from "../src/brain.js";
 import { VERSION } from "../src/version.js";
 import { ensureDistBuilt } from "./ensure-dist.js";
+import { execNpm } from "./helpers/npm-exec.js";
+import { isWindows } from "./helpers/platform.js";
 
 const repoRoot = join(import.meta.dirname, "..");
 
 function npmPackTarball(destDir: string): string {
-  const out = execFileSync("npm", ["pack", "--pack-destination", destDir], {
+  const out = execNpm(["pack", "--pack-destination", destDir], {
     cwd: repoRoot,
     encoding: "utf8",
   });
@@ -57,7 +59,7 @@ describe("global install from npm pack", () => {
   beforeAll(() => {
     ensureDistBuilt();
     const tarball = npmPackTarball(workDir);
-    execFileSync("npm", ["install", "-g", "--prefix", npmPrefix, tarball], {
+    execNpm(["install", "-g", "--prefix", npmPrefix, tarball], {
       cwd: workDir,
       stdio: "pipe",
     });
@@ -65,7 +67,10 @@ describe("global install from npm pack", () => {
   });
 
   it("exposes --version matching package.json", () => {
-    const version = execFileSync(brainBin, ["--version"], { encoding: "utf8" }).trim();
+    const version = execFileSync(brainBin, ["--version"], {
+      encoding: "utf8",
+      shell: isWindows,
+    }).trim();
     expect(version).toBe(VERSION);
   });
 
@@ -73,11 +78,17 @@ describe("global install from npm pack", () => {
     const project = tmpGitRepo();
     execFileSync("git", ["commit", "--allow-empty", "-m", "init"], { cwd: project });
 
-    const initOut = execFileSync(brainBin, ["init", project], { encoding: "utf8" });
+    const initOut = execFileSync(brainBin, ["init", project], {
+      encoding: "utf8",
+      shell: isWindows,
+    });
     expect(initOut).toContain("Created 5 memory files");
     expect(existsSync(join(project, BRAIN_DIR, "brain.json"))).toBe(true);
 
-    const healOut = execFileSync(brainBin, ["heal", project, "--dry-run"], { encoding: "utf8" });
+    const healOut = execFileSync(brainBin, ["heal", project, "--dry-run"], {
+      encoding: "utf8",
+      shell: isWindows,
+    });
     expect(healOut).toContain("Dry run");
     expect(healOut).toMatch(/memory is up to date|Reconciling/);
   });
