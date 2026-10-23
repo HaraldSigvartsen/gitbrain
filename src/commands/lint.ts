@@ -1,3 +1,4 @@
+import { type CliTheme, createTheme } from "../cli/theme.js";
 import { lintBrain, type LintIssue, type LintResult } from "../brain/lint.js";
 
 export type { LintIssue, LintResult };
@@ -6,17 +7,17 @@ export function runLint(projectDir: string): LintResult {
   return lintBrain(projectDir);
 }
 
-export function formatLintHumanOutput(result: LintResult): string {
+export function formatLintHumanOutput(result: LintResult, theme: CliTheme = createTheme(false)): string {
   if (result.issues.length === 0) {
-    return "✓ .brain memory passes lint (no issues).";
+    return `${theme.success("✓")} .brain memory passes lint (no issues).`;
   }
-  const lines = ["Lint found issues:", ""];
+  const lines = [theme.error("Lint found issues:"), ""];
   for (const issue of result.issues) {
     const location = issue.id ? `${issue.id} · ` : "";
-    lines.push(`✖ ${location}${issue.message}`);
+    lines.push(`${theme.error("✖")} ${location}${issue.message}`);
   }
   lines.push("");
-  lines.push(`${result.errorCount} error(s)`);
+  lines.push(theme.error(`${result.errorCount} error(s)`));
   return lines.join("\n");
 }
 

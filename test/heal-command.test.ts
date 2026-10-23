@@ -11,6 +11,7 @@ import {
 } from "../src/commands/heal.js";
 import { runInit } from "../src/commands/init.js";
 import { readLedger } from "../src/commands/status.js";
+import { ensureDistBuilt } from "./ensure-dist.js";
 
 function tmpRepo(): string {
   const dir = mkdtempSync(join(tmpdir(), "gitbrain-heal-cmd-"));
@@ -139,13 +140,10 @@ describe("runHeal", () => {
 });
 
 describe("brain heal CLI", () => {
-  const cliPath = join(import.meta.dirname, "../dist/cli.js");
+  let cliPath: string;
 
   beforeAll(() => {
-    execFileSync("npm", ["run", "build"], { cwd: join(import.meta.dirname, ".."), stdio: "pipe" });
-    if (!existsSync(cliPath)) {
-      throw new Error("dist/cli.js missing after build");
-    }
+    cliPath = ensureDistBuilt();
   });
 
   it("runs end-to-end via dist/cli.js", () => {

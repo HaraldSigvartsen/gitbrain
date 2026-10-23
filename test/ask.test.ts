@@ -7,6 +7,7 @@ import { discoverBrainRoots, runAskSearch } from "../src/ask/retrieve.js";
 import { askResultToJson, formatAskHumanOutput, runAsk } from "../src/commands/ask.js";
 import { runInit } from "../src/commands/init.js";
 import { BRAIN_DIR, DECISIONS_FILE } from "../src/brain.js";
+import { ensureDistBuilt } from "./ensure-dist.js";
 
 function tmpProject(): string {
   return mkdtempSync(join(tmpdir(), "gitbrain-ask-"));
@@ -111,13 +112,10 @@ describe("ask retrieve", () => {
 });
 
 describe("brain ask CLI", () => {
-  const cliPath = join(import.meta.dirname, "../dist/cli.js");
+  let cliPath: string;
 
   beforeAll(() => {
-    execFileSync("npm", ["run", "build"], { cwd: join(import.meta.dirname, ".."), stdio: "pipe" });
-    if (!existsSync(cliPath)) {
-      throw new Error("dist/cli.js missing after build");
-    }
+    cliPath = ensureDistBuilt();
   });
 
   it("runs multi-word queries from the project root", () => {

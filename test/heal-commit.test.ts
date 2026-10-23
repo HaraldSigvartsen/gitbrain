@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -7,6 +7,7 @@ import { BRAIN_DIR, LEDGER_FILE, OBSERVATIONS_FILE } from "../src/brain.js";
 import { runHeal } from "../src/commands/heal.js";
 import { runInit } from "../src/commands/init.js";
 import { readLedger } from "../src/commands/status.js";
+import { ensureDistBuilt } from "./ensure-dist.js";
 import { brainPathsWrittenByHeal } from "../src/git/commit-brain.js";
 
 function tmpRepo(): string {
@@ -147,14 +148,13 @@ describe("brain heal --commit", () => {
 });
 
 describe("brain heal --commit CLI", () => {
-  const cliPath = join(import.meta.dirname, "../dist/cli.js");
+  let cliPath: string;
+
+  beforeAll(() => {
+    cliPath = ensureDistBuilt();
+  });
 
   it("runs heal --commit via dist/cli.js", () => {
-    execFileSync("npm", ["run", "build"], { cwd: join(import.meta.dirname, ".."), stdio: "pipe" });
-    if (!existsSync(cliPath)) {
-      throw new Error("dist/cli.js missing after build");
-    }
-
     const repo = tmpRepo();
     runInit(repo);
     seedObservation(repo);

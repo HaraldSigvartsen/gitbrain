@@ -12,6 +12,7 @@ import {
 import { runInit } from "../src/commands/init.js";
 import { readLedger } from "../src/commands/status.js";
 import { BRAIN_DIR, DECISIONS_FILE, LEDGER_FILE } from "../src/brain.js";
+import { ensureDistBuilt } from "./ensure-dist.js";
 
 function tmpProject(): string {
   return mkdtempSync(join(tmpdir(), "gitbrain-lint-"));
@@ -152,13 +153,10 @@ describe("lintBrain", () => {
 });
 
 describe("brain lint CLI", () => {
-  const cliPath = join(import.meta.dirname, "../dist/cli.js");
+  let cliPath: string;
 
   beforeAll(() => {
-    execFileSync("npm", ["run", "build"], { cwd: join(import.meta.dirname, ".."), stdio: "pipe" });
-    if (!existsSync(cliPath)) {
-      throw new Error("dist/cli.js missing after build");
-    }
+    cliPath = ensureDistBuilt();
   });
 
   it("exits 0 on clean project and 1 when lint fails", () => {
@@ -172,9 +170,10 @@ describe("brain lint CLI", () => {
       execFileSync("node", [cliPath, "lint", project], { encoding: "utf8" });
     } catch (error: unknown) {
       threw = true;
-      const err = error as { status?: number; stdout?: string };
+      const err = error as { status?: number; stderr?: string; stdout?: string };
       expect(err.status).toBe(1);
-      expect(String(err.stdout)).toContain("error(s)");
+      const combined = String(err.stderr ?? "") + String(err.stdout ?? "");
+      expect(combined).toContain("error(s)");
     }
     expect(threw).toBe(true);
 
