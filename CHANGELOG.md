@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Install-from-GitHub path verified via `npm pack` integration test
 - `docs/cli.md` — global flags (`--quiet`, `--color`) and exit codes
 - TTY-aware ANSI colours for human-readable command output
+- `brain heal --since <ref|date>` to bound reconciliation; first-run cap uses `rev-list -n` (no full history walk)
 
 ### Changed
 

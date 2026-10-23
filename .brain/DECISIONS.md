@@ -16,6 +16,13 @@ IDs are sequential (D-0001, D-0002, …) and are never reused.
 
 ---
 
+## D-0006 — First-run cap uses rev-list count/skip; heal --since is a floor ref
+- **Date:** 2026-10-23
+- **Status:** active
+- **Context:** Large repos made first heal load every SHA via `rev-list --reverse`. Operators also need to bound catch-up without editing `brain.json`.
+- **Choice:** Cap the first-run window with `rev-list --count` and `--skip` (no full SHA list). `brain heal --since` accepts a commit-ish or ISO date; the effective floor is the later of `--since` and `last_reconciled_sha`. First-run windows still cap at 500 commits when the range is larger. Rejected: raising the cap or disabling it by default.
+- **Consequences:** `--since` cannot skip reconciling commits newer than the ledger floor. Documented in README and `docs/cli.md`.
+
 ## D-0005 — Recorded SHAs are hex-validated; numstat parsed only in -z form
 - **Date:** 2026-10-22
 - **Status:** active

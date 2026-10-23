@@ -4,7 +4,7 @@
 > keep it under a screenful. Detail belongs in CONTEXT.md or DECISIONS.md.
 
 - **Date:** 2026-10-23
-- **What we did:** P2 CLI UX — `src/cli/theme.ts`, global `--quiet`/`--color`, `docs/cli.md`, `brain ask` exits 1 on no hits, lint errors on stderr.
-- **Where we stopped:** branch `agent/cli-ux` ready for PR.
-- **Next steps:** P2 performance (large histories, `--since`); then Windows CI matrix.
+- **What we did:** P2 performance — `brain heal --since`, cap via `rev-list --count`/`--skip`, 1k-commit vitest fixture.
+- **Where we stopped:** branch `agent/performance-since` ready for PR.
+- **Next steps:** P2 Windows path handling + CI matrix; optional LLM summary.
 - **Open threads:** Heal flags any backtick path in CONTEXT/HANDOFF, not only architecture-map bullets.
