@@ -26,6 +26,21 @@ function npmPackTarball(destDir: string): string {
   return join(destDir, line);
 }
 
+function resolveGlobalBrainBin(npmPrefix: string): string {
+  const candidates = [
+    join(npmPrefix, "bin", "brain"),
+    join(npmPrefix, "bin", "brain.cmd"),
+    join(npmPrefix, "brain.cmd"),
+    join(npmPrefix, "brain"),
+  ];
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  throw new Error(`brain executable not found under npm prefix ${npmPrefix}`);
+}
+
 function tmpGitRepo(): string {
   const dir = mkdtempSync(join(tmpdir(), "gitbrain-pack-repo-"));
   execFileSync("git", ["init"], { cwd: dir });
@@ -46,10 +61,7 @@ describe("global install from npm pack", () => {
       cwd: workDir,
       stdio: "pipe",
     });
-    brainBin = join(npmPrefix, "bin", "brain");
-    if (!existsSync(brainBin)) {
-      throw new Error(`expected brain bin at ${brainBin}`);
-    }
+    brainBin = resolveGlobalBrainBin(npmPrefix);
   });
 
   it("exposes --version matching package.json", () => {

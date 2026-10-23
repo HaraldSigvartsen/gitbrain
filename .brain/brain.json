@@ -39,6 +39,12 @@
       "title": "First-run cap uses rev-list count/skip; heal --since is a floor ref",
       "status": "active",
       "updated": "2026-10-23"
+    },
+    {
+      "id": "D-0007",
+      "title": "Repo paths are always posix in brains and drift output",
+      "status": "active",
+      "updated": "2026-10-23"
     }
   ],
   "observations": [

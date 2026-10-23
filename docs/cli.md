@@ -15,6 +15,8 @@ brain --no-color status
 
 Colours are used only for human-readable output on an interactive terminal. Piped or redirected stdout stays plain unless `--color` is set.
 
+Repo-relative paths in `.brain/` markdown and heal drift reports always use forward slashes (`src/foo.ts`), including on Windows.
+
 ## Exit codes
 
 | Code | When |
