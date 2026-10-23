@@ -69,6 +69,8 @@ status, added, removed, previousPath? }, touchedPaths }`
 - [x] CLI UX: ANSI colours on TTY only (`--color` / `--no-color` / `NO_COLOR`), global
       `--quiet`, exit codes documented in `docs/cli.md` (`brain ask` exits `1` when there
       are no hits; `brain lint` on validation errors)
+- [x] Large histories: first-run commit cap without full `rev-list`, `brain heal --since`
+      (commit ref or ISO date), 1k-commit fixture test
 - [ ] npm publish as `@haraldsigvartsen/gitbrain` (check whether the bare `gitbrain`
       name became available / request transfer)
 - [ ] README: real demo GIF (replace the ASCII sketch), social preview image

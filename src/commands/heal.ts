@@ -10,6 +10,8 @@ import { readLedger } from "./status.js";
 export interface HealOptions {
   dryRun?: boolean;
   commit?: boolean;
+  /** Commit ref or ISO date — see `collectChangeSet` / `brain heal --since`. */
+  since?: string;
   now?: Date;
 }
 
@@ -28,7 +30,9 @@ export function runHeal(projectDir: string, options: HealOptions = {}): HealResu
     throw new Error("--commit cannot be used with --dry-run");
   }
   const ledger = readLedger(projectDir);
-  const changeSet = collectChangeSet(projectDir, ledger.last_reconciled_sha);
+  const changeSet = collectChangeSet(projectDir, ledger.last_reconciled_sha, {
+    since: options.since,
+  });
   const brain = parseBrain(projectDir);
   const report = detectDrift(projectDir, changeSet, brain);
   const apply = applyDriftReport(projectDir, report, { dryRun, now: options.now });

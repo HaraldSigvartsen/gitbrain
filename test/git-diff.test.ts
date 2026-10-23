@@ -3,7 +3,13 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { EMPTY_TREE_SHA, collectChangeSet, oldestShaInCappedWindow } from "../src/git/diff.js";
+import {
+  EMPTY_TREE_SHA,
+  collectChangeSet,
+  laterCommit,
+  oldestShaInCappedWindow,
+  resolveSinceOption,
+} from "../src/git/diff.js";
 import { GitError } from "../src/git/exec.js";
 
 function tmpRepo(): string {
@@ -165,5 +171,87 @@ describe("collectChangeSet", () => {
     const change = collectChangeSet(repo, null);
     expect(change.capped).toBe(false);
     expect(change.commits).toHaveLength(3);
+  });
+
+  it(
+    "caps a 1000-commit first run using rev-list --count/--skip",
+    () => {
+    const repo = tmpRepo();
+    writeFileSync(join(repo, "seed.txt"), "x\n");
+    commitAll(repo, "seed");
+    for (let i = 0; i < 999; i += 1) {
+      execFileSync("git", ["commit", "--allow-empty", "-m", `empty ${i}`], { cwd: repo });
+    }
+
+    const change = collectChangeSet(repo, null);
+    expect(change.capped).toBe(true);
+    expect(change.commits).toHaveLength(500);
+    },
+    60_000,
+  );
+
+  it("honours --since on a first run (ref)", () => {
+    const repo = tmpRepo();
+    writeFileSync(join(repo, "seed.txt"), "x\n");
+    commitAll(repo, "seed");
+    for (let i = 0; i < 99; i += 1) {
+      execFileSync("git", ["commit", "--allow-empty", "-m", `empty ${i}`], { cwd: repo });
+    }
+    const floor = execFileSync("git", ["rev-parse", "HEAD~40"], {
+      cwd: repo,
+      encoding: "utf8",
+    }).trim();
+
+    const change = collectChangeSet(repo, null, { since: floor });
+    expect(change.capped).toBe(false);
+    expect(change.commits).toHaveLength(40);
+  });
+
+  it("never reconciles older than last_reconciled_sha when --since is older", () => {
+    const repo = tmpRepo();
+    writeFileSync(join(repo, "seed.txt"), "x\n");
+    commitAll(repo, "seed");
+    for (let i = 0; i < 20; i += 1) {
+      execFileSync("git", ["commit", "--allow-empty", "-m", `empty ${i}`], { cwd: repo });
+    }
+    const ledger = execFileSync("git", ["rev-parse", "HEAD~5"], {
+      cwd: repo,
+      encoding: "utf8",
+    }).trim();
+    const olderSince = execFileSync("git", ["rev-parse", "HEAD~15"], {
+      cwd: repo,
+      encoding: "utf8",
+    }).trim();
+
+    const change = collectChangeSet(repo, ledger, { since: olderSince });
+    expect(change.sinceSha).toBe(ledger);
+    expect(change.commits).toHaveLength(5);
+  });
+
+  it("laterCommit picks the descendant on a linear history", () => {
+    const repo = tmpRepo();
+    writeFileSync(join(repo, "a.txt"), "a\n");
+    commitAll(repo, "a");
+    const mid = execFileSync("git", ["rev-parse", "HEAD"], { cwd: repo, encoding: "utf8" }).trim();
+    execFileSync("git", ["commit", "--allow-empty", "-m", "b"], { cwd: repo });
+    const head = execFileSync("git", ["rev-parse", "HEAD"], { cwd: repo, encoding: "utf8" }).trim();
+
+    expect(laterCommit(repo, mid, head)).toBe(head);
+    expect(laterCommit(repo, head, mid)).toBe(head);
+  });
+
+  it("resolveSinceOption accepts HEAD~n", () => {
+    const repo = tmpRepo();
+    writeFileSync(join(repo, "seed.txt"), "x\n");
+    commitAll(repo, "seed");
+    for (let i = 0; i < 5; i += 1) {
+      execFileSync("git", ["commit", "--allow-empty", "-m", `e ${i}`], { cwd: repo });
+    }
+    const resolved = resolveSinceOption(repo, "HEAD~2");
+    const expected = execFileSync("git", ["rev-parse", "HEAD~2"], {
+      cwd: repo,
+      encoding: "utf8",
+    }).trim();
+    expect(resolved).toBe(expected);
   });
 });

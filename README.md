@@ -101,7 +101,7 @@ Reconciling .brain against git since repo start (2 commits)…
 Wrote memory drift report → .brain/reports/2026-10-22.md
 ```
 
-Flags: `--dry-run` (print the report, write nothing), `--json` (machine-readable), `--commit` (commit only `.brain/` changes locally — never pushes). To run on a schedule, use the [GitHub Action example](examples/github-action/heal.yml) or [cron / launchd recipes](docs/scheduling.md).
+Flags: `--dry-run` (print the report, write nothing), `--json` (machine-readable), `--commit` (commit only `.brain/` changes locally — never pushes), `--since <ref|date>` (limit how far back to scan on the first run or when catching up — never older than `last_reconciled_sha`). First runs without `--since` cap at 500 commits. To run on a schedule, use the [GitHub Action example](examples/github-action/heal.yml) or [cron / launchd recipes](docs/scheduling.md).
 
 1. **Collect** — a structured change set from `git log` / `git diff` since the last reconciled SHA (first run: capped whole-history summary).
 2. **Detect** — match ledger entries and CONTEXT.md path references against the change set. Deleted/heavily-rewritten code that an observation points at makes it a close candidate; replaced decision subject code makes it a supersede candidate; renames can re-point `Where:` paths. Conservative by default: propose, don't silently rewrite.

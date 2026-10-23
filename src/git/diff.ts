@@ -33,6 +33,14 @@ export interface ChangeSet {
   capped: boolean;
 }
 
+export interface CollectChangeSetOptions {
+  /**
+   * Optional lower bound: commit SHA, ref (e.g. `HEAD~100`), or ISO date for
+   * `git rev-list --since`. Never reconciles older than `last_reconciled_sha`.
+   */
+  since?: string;
+}
+
 function parseNumstat(stdout: string): {
   counts: Map<string, { added: number; removed: number }>;
   renames: Map<string, { added: number; removed: number }>;
@@ -129,50 +137,153 @@ export function oldestShaInCappedWindow(
   return { window: allShasOldestFirst.slice(-cap), capped: true };
 }
 
+function assertRecordedSha(repoDir: string, sha: string, label: string): void {
+  if (!/^[0-9a-f]{7,40}$/i.test(sha)) {
+    throw new GitError(
+      `${label} "${sha}" is not a hexadecimal SHA — refusing to pass it to git.`,
+      repoDir,
+      "",
+    );
+  }
+  try {
+    git(repoDir, ["rev-parse", "--verify", `${sha}^{commit}`]);
+  } catch {
+    throw new GitError(
+      `${label} ${sha} is not a commit in this repository — ` +
+        `was history rewritten? Clear last_reconciled_sha in brain.json to reconcile from scratch.`,
+      repoDir,
+      "",
+    );
+  }
+}
+
+function isAncestor(repoDir: string, ancestor: string, descendant: string): boolean {
+  try {
+    git(repoDir, ["merge-base", "--is-ancestor", ancestor, descendant]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Return the later of two commits on the same branch (closer to HEAD). */
+export function laterCommit(repoDir: string, a: string, b: string): string {
+  if (a === b) {
+    return a;
+  }
+  if (isAncestor(repoDir, a, b)) {
+    return b;
+  }
+  if (isAncestor(repoDir, b, a)) {
+    return a;
+  }
+  throw new GitError(
+    `Cannot reconcile --since: ${a.slice(0, 7)} and ${b.slice(0, 7)} are not on the same ancestry line.`,
+    repoDir,
+    "",
+  );
+}
+
+function parentShaOrEmptyTree(repoDir: string, commitSha: string): string {
+  try {
+    return git(repoDir, ["rev-parse", `${commitSha}^`]);
+  } catch {
+    return EMPTY_TREE_SHA;
+  }
+}
+
+function commitCountInRange(repoDir: string, range: string): number {
+  const raw = git(repoDir, ["rev-list", "--count", range]);
+  const parsed = Number.parseInt(raw, 10);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+/** Oldest commit among the `cap` newest commits in `range` (default: entire history). */
+function oldestAmongNewestInRange(repoDir: string, range: string, cap: number): string {
+  const stdout = git(repoDir, ["rev-list", "-n", String(cap), range]);
+  const lines = stdout.split("\n").filter(Boolean);
+  const oldest = lines.at(-1);
+  if (!oldest) {
+    throw new GitError(`Could not resolve a capped history window for ${range}.`, repoDir, "");
+  }
+  return oldest;
+}
+
+function capRangeFromHead(repoDir: string, cap: number): { sinceSha: string; capped: boolean } {
+  const total = commitCountInRange(repoDir, "HEAD");
+  if (total <= cap) {
+    return { sinceSha: EMPTY_TREE_SHA, capped: false };
+  }
+  const oldestInWindow = oldestAmongNewestInRange(repoDir, "HEAD", cap);
+  return { sinceSha: parentShaOrEmptyTree(repoDir, oldestInWindow), capped: true };
+}
+
+/**
+ * Resolve `brain heal --since` to the exclusive lower bound for `since..HEAD`.
+ * Accepts a commit-ish or an ISO date string for `git rev-list --since`.
+ */
+export function resolveSinceOption(repoDir: string, spec: string): string {
+  const trimmed = spec.trim();
+  if (!trimmed) {
+    throw new GitError("--since requires a commit ref or date.", repoDir, "");
+  }
+  try {
+    git(repoDir, ["rev-parse", "--verify", `${trimmed}^{commit}`]);
+    return git(repoDir, ["rev-parse", trimmed]);
+  } catch {
+    const oldestAfterDate = git(repoDir, [
+      "rev-list",
+      "-n",
+      "1",
+      "--reverse",
+      `--since=${trimmed}`,
+      "HEAD",
+    ]);
+    if (!oldestAfterDate) {
+      throw new GitError(`No commits found on or after --since ${trimmed}.`, repoDir, "");
+    }
+    return parentShaOrEmptyTree(repoDir, oldestAfterDate);
+  }
+}
+
+function capFloorWithinRange(
+  repoDir: string,
+  floorSha: string,
+  cap: number,
+): { sinceSha: string; capped: boolean } {
+  const range = `${floorSha}..HEAD`;
+  const count = commitCountInRange(repoDir, range);
+  if (count <= cap) {
+    return { sinceSha: floorSha, capped: false };
+  }
+  const oldestInWindow = oldestAmongNewestInRange(repoDir, range, cap);
+  return { sinceSha: parentShaOrEmptyTree(repoDir, oldestInWindow), capped: true };
+}
+
 function resolveSinceBoundary(
   repoDir: string,
   lastReconciledSha: string | null,
+  options?: CollectChangeSetOptions,
 ): { sinceSha: string; capped: boolean } {
+  let explicitFloor: string | null = null;
+  if (options?.since) {
+    explicitFloor = resolveSinceOption(repoDir, options.since);
+  }
+
   if (lastReconciledSha) {
-    // The SHA comes from brain.json — repo-controlled input. execFile passes it
-    // straight into git's argv, so anything not shaped like a SHA (e.g. a string
-    // starting with "--") must be rejected before git can parse it as an option.
-    if (!/^[0-9a-f]{7,40}$/i.test(lastReconciledSha)) {
-      throw new GitError(
-        `Recorded last_reconciled_sha "${lastReconciledSha}" is not a hexadecimal SHA — refusing to pass it to git.`,
-        repoDir,
-        "",
-      );
+    assertRecordedSha(repoDir, lastReconciledSha, "Recorded last_reconciled_sha");
+    let sinceSha = lastReconciledSha;
+    if (explicitFloor) {
+      sinceSha = laterCommit(repoDir, explicitFloor, sinceSha);
     }
-    try {
-      git(repoDir, ["rev-parse", "--verify", `${lastReconciledSha}^{commit}`]);
-    } catch {
-      throw new GitError(
-        `Recorded last_reconciled_sha ${lastReconciledSha} is not a commit in this repository — ` +
-          `was history rewritten? Clear last_reconciled_sha in brain.json to reconcile from scratch.`,
-        repoDir,
-        "",
-      );
-    }
-    return { sinceSha: lastReconciledSha, capped: false };
+    return { sinceSha, capped: false };
   }
 
-  const allShas = git(repoDir, ["rev-list", "--reverse", "HEAD"]).split("\n").filter(Boolean);
-  const { window, capped } = oldestShaInCappedWindow(allShas, FIRST_RUN_COMMIT_CAP);
-  if (!capped) {
-    return { sinceSha: EMPTY_TREE_SHA, capped: false };
+  if (explicitFloor) {
+    return capFloorWithinRange(repoDir, explicitFloor, FIRST_RUN_COMMIT_CAP);
   }
 
-  const oldest = window[0];
-  if (!oldest) {
-    return { sinceSha: EMPTY_TREE_SHA, capped: true };
-  }
-  try {
-    const parent = git(repoDir, ["rev-parse", `${oldest}^`]);
-    return { sinceSha: parent, capped: true };
-  } catch {
-    return { sinceSha: EMPTY_TREE_SHA, capped: true };
-  }
+  return capRangeFromHead(repoDir, FIRST_RUN_COMMIT_CAP);
 }
 
 /**
@@ -208,9 +319,13 @@ function mergeEphemeralDeletesFromLog(
  * Collect a structured change set from git history after `lastReconciledSha`
  * (or from the first commit on first run, capped).
  */
-export function collectChangeSet(repoDir: string, lastReconciledSha: string | null): ChangeSet {
+export function collectChangeSet(
+  repoDir: string,
+  lastReconciledSha: string | null,
+  options?: CollectChangeSetOptions,
+): ChangeSet {
   const headSha = git(repoDir, ["rev-parse", "HEAD"]);
-  const { sinceSha, capped } = resolveSinceBoundary(repoDir, lastReconciledSha);
+  const { sinceSha, capped } = resolveSinceBoundary(repoDir, lastReconciledSha, options);
   const range = `${sinceSha}..${headSha}`;
 
   const commits = listCommits(repoDir, range);

@@ -33,6 +33,12 @@
       "title": "Recorded SHAs are hex-validated; numstat parsed only in -z form",
       "status": "active",
       "updated": "2026-10-22"
+    },
+    {
+      "id": "D-0006",
+      "title": "First-run cap uses rev-list count/skip; heal --since is a floor ref",
+      "status": "active",
+      "updated": "2026-10-23"
     }
   ],
   "observations": [

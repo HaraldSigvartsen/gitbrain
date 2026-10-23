@@ -23,7 +23,7 @@ It is built for anyone running Claude Code, Codex, Cursor, ZCode or similar on r
 - `test/` — vitest; every test builds its own project in a tmpdir, nothing shared.
 - `docs/logo.svg` — the logo used in the README.
 - `src/git/exec.ts` — `git -C <repo> …` wrapper; friendly error when not a git repo.
-- `src/git/diff.ts` — `collectChangeSet(dir, lastReconciledSha)` → commits, per-file stats, touched paths (merges ephemeral deletes from `git log` on first run).
+- `src/git/diff.ts` — `collectChangeSet(dir, lastReconciledSha, { since? })` → commits, per-file stats, touched paths; first-run cap uses `rev-list --count`/`--skip` (not full history); optional `--since` ref/date floor.
 - `src/brain/parse.ts` — parse DECISIONS/OBSERVATIONS/CONTEXT paths; reconcile markdown ↔ `brain.json`.
 - `src/heal/detect.ts` — `detectDrift` → `DriftReport` (close/supersede/re-point proposals, no writes).
 - `src/heal/apply.ts` — `applyDriftReport` writes inside `.brain/` only (ledger, annotations, reports, SHA).
