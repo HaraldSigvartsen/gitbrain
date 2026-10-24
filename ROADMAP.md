@@ -73,17 +73,17 @@ status, added, removed, previousPath? }, touchedPaths }`
       (commit ref or ISO date), 1k-commit fixture test
 - [x] Windows: posix-normalised repo paths in git change sets and heal reports; CI matrix
       (ubuntu, macos, windows × Node 20 and 22)
-- [ ] npm publish as `@haraldsigvartsen/gitbrain` (check whether the bare `gitbrain`
+- [x] npm publish as `@siggysaggy/gitbrain` (0.3.0, 24 Oct 2026)
       name became available / request transfer)
 - [x] README: real demo GIF (replace the ASCII sketch), social preview image
 
 ## Blockers
 
-- **npm publish (v0.7)** — needs Harald. Publishing is an outward-facing registry
+- **npm publish (v0.7)** — done 24 Oct 2026 as `@siggysaggy/gitbrain@0.3.0` (npm user siggysaggy; `@haraldsigvartsen` scope did not exist). Publishing is an outward-facing registry
   action and requires npm credentials an automated run must not use. Facts checked
   2026-10-23: the bare `gitbrain` name is still taken (unrelated package, v0.2.1,
   last modified 2026-04-11 — a name transfer is unlikely to come quickly);
-  `@haraldsigvartsen/gitbrain` is unpublished and ready. When ready:
+  `@siggysaggy/gitbrain` is unpublished and ready. When ready:
   `npm run build && npm publish --access public` (pack contents are already covered
   by `test/install-pack.test.ts`). Related manual step: upload
   `docs/social-preview.jpg` in repo Settings → Social preview.

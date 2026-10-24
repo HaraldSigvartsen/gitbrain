@@ -1,5 +1,5 @@
 {
-  "name": "@haraldsigvartsen/gitbrain",
+  "name": "@siggysaggy/gitbrain",
   "version": "0.3.0",
   "description": "Self-healing project memory for AI coding agents. Agents write it, git proves it, a scheduled reconciler keeps it true.",
   "type": "module",
