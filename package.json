@@ -32,8 +32,10 @@
     "build": "tsc",
     "check": "tsc --noEmit && vitest run",
     "test": "vitest run",
+    "gate": "node scripts/gate.mjs",
+    "hooks:install": "node scripts/install-hooks.mjs",
     "format": "prettier --write .",
-    "prepare": "npm run build"
+    "prepare": "npm run build && node scripts/install-hooks.mjs"
   },
   "keywords": [
     "ai",

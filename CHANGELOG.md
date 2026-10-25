@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Local pre-push gate: `npm run gate` runs `npm run check` (typecheck + vitest). `npm install` sets `core.hooksPath` to `.githooks` so `git push` runs that gate before the remote sees the commits. No new GitHub Actions workflows.
+
 ## [0.3.0] - 2026-10-23
 
 ### Added

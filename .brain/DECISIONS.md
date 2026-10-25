@@ -16,6 +16,13 @@ IDs are sequential (D-0001, D-0002, …) and are never reused.
 
 ---
 
+## D-0011 — Local pre-push gate, not more GitHub Actions
+- **Date:** 2026-10-25
+- **Status:** active
+- **Context:** GitHub Pro still bills Actions minutes, and the existing CI matrix (3 OS × 2 Node versions) already runs `npm run check` on pull requests. Adding more hosted workflows would spend minutes on a check a laptop finishes in one shot. The repo also keeps a small dependency surface (D-0002).
+- **Choice:** `npm run gate` runs the existing fast check (`tsc --noEmit` and `vitest run`). A POSIX hook at `.githooks/pre-push` runs it and aborts a failed push. `npm install` (via `prepare`) and `npm run hooks:install` set this clone's local `core.hooksPath` to `.githooks`. Rejected: husky (another devDependency, and `prepare` already builds), copying the hook into `.git/hooks` (drifts from the committed script), and any new GitHub Actions workflow.
+- **Consequences:** Each clone enables the hook once (`npm install` or `npm run hooks:install`). `core.hooksPath` replaces `.git/hooks` for that clone. `git push --no-verify` still bypasses it. `.github/workflows/ci.yml` stays; this does not remove hosted CI. The hook is not part of the published npm tarball (`files` whitelist). Agents run `npm run gate` before push.
+
 ## D-0010 — npm identity is @siggysaggy/gitbrain
 - **Date:** 2026-10-25
 - **Status:** active

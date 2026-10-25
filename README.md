@@ -155,7 +155,7 @@ Details and acceptance criteria per unit: [ROADMAP.md](ROADMAP.md).
 
 ## Contributing
 
-Human PRs are very welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Good first units are the unchecked items in [ROADMAP.md](ROADMAP.md); one unit ≈ one PR.
+Human PRs are very welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Before you push, `npm run gate` (installed as a pre-push hook) runs the same typecheck and tests as CI. Good first units are the unchecked items in [ROADMAP.md](ROADMAP.md); one unit ≈ one PR.
 
 ## License
 
