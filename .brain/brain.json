@@ -7,8 +7,8 @@
     {
       "id": "D-0001",
       "title": "Project name \"gitbrain\", npm package scoped",
-      "status": "active",
-      "updated": "2026-10-21"
+      "status": "superseded",
+      "updated": "2026-10-25"
     },
     {
       "id": "D-0002",
@@ -57,6 +57,12 @@
       "title": "README demo is a committed GIF; the transcript stays canonical",
       "status": "active",
       "updated": "2026-10-23"
+    },
+    {
+      "id": "D-0010",
+      "title": "npm identity is @siggysaggy/gitbrain",
+      "status": "active",
+      "updated": "2026-10-25"
     }
   ],
   "observations": [

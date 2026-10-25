@@ -73,17 +73,16 @@ status, added, removed, previousPath? }, touchedPaths }`
       (commit ref or ISO date), 1k-commit fixture test
 - [x] Windows: posix-normalised repo paths in git change sets and heal reports; CI matrix
       (ubuntu, macos, windows × Node 20 and 22)
-- [x] npm publish as `@siggysaggy/gitbrain` (0.3.0, 24 Oct 2026)
-      name became available / request transfer)
+- [x] npm publish as `@siggysaggy/gitbrain` (0.3.0 + 0.3.1, 24 Oct 2026)
 - [x] README: real demo GIF (replace the ASCII sketch), social preview image
 
 ## Blockers
 
-- **npm publish (v0.7)** — done 24 Oct 2026 as `@siggysaggy/gitbrain@0.3.0` (npm user siggysaggy; `@haraldsigvartsen` scope did not exist). Publishing is an outward-facing registry
-  action and requires npm credentials an automated run must not use. Facts checked
-  2026-10-23: the bare `gitbrain` name is still taken (unrelated package, v0.2.1,
-  last modified 2026-04-11 — a name transfer is unlikely to come quickly);
-  `@siggysaggy/gitbrain` is unpublished and ready. When ready:
-  `npm run build && npm publish --access public` (pack contents are already covered
-  by `test/install-pack.test.ts`). Related manual step: upload
-  `docs/social-preview.jpg` in repo Settings → Social preview.
+- **Social preview upload (v0.7 leftover)** — `docs/social-preview.jpg` is ready
+  (1200×640, 87KB) but not yet uploaded: repo Settings → Social preview. No public
+  API for it; manual step for Harald.
+- Resolved 24 Oct 2026: npm publish — live on the registry as
+  `@siggysaggy/gitbrain@0.3.1` (npm user `siggysaggy`; the `@haraldsigvartsen`
+  scope did not exist). Known blemish: the 0.3.1 tarball's `brain --version`
+  reports 0.3.0 because `src/version.ts` was out of sync at publish time; fixed
+  on main — ship the sync with the next release.

@@ -16,6 +16,13 @@ IDs are sequential (D-0001, D-0002, …) and are never reused.
 
 ---
 
+## D-0010 — npm identity is @siggysaggy/gitbrain
+- **Date:** 2026-10-25
+- **Status:** active
+- **Context:** Publishing under `@haraldsigvartsen` was impossible — that npm scope does not exist; Harald's npm user is `siggysaggy`. First publish attempts appeared staged-but-404 (suspected 2FA/OTP), then resolved: versions 0.3.0 and 0.3.1 went live on 24 Oct 2026.
+- **Choice:** Package name `@siggysaggy/gitbrain`; GitHub repo stays `HaraldSigvartsen/gitbrain`; binary stays `brain`. README and docs install lines now use the npm name.
+- **Consequences:** The 0.3.1 tarball reports `--version 0.3.0` (src/version.ts was out of sync at publish time) — fixed on main, ship with the next release. A stray `0.0.0-stage` version sits in the registry's version list; harmless, ignore or deprecate later.
+
 ## D-0009 — README demo is a committed GIF; the transcript stays canonical
 - **Date:** 2026-10-23
 - **Status:** active
@@ -74,7 +81,9 @@ IDs are sequential (D-0001, D-0002, …) and are never reused.
 
 ## D-0001 — Project name "gitbrain", npm package scoped
 - **Date:** 2026-10-21
-- **Status:** active
+- **Status:** superseded
 - **Context:** The bare npm name `gitbrain` is taken by an unrelated package; the GitHub name is free and no notable project uses it. Splitting names (one on GitHub, another on npm) would confuse users.
 - **Choice:** GitHub repo `HaraldSigvartsen/gitbrain`, binary `brain`, npm package `@haraldsigvartsen/gitbrain`. The ledger strips the scope so the project name is `gitbrain`. Rejected: renaming the project to fit a free npm name.
 - **Consequences:** README install uses the GitHub URL until v0.7 publishes to npm. Revisit whether the bare npm name became available or transferable at v0.7.
+
+> healed 2026-10-25 — superseded by D-0010: the npm scope had to follow the actual npm username (`siggysaggy`), not the GitHub handle. GitHub repo name and binary name are unchanged.

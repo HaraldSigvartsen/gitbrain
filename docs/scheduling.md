@@ -19,7 +19,7 @@ for permissions and customization.
 
 ## Linux / macOS cron (local commit)
 
-Install the CLI once (`npm install -g github:HaraldSigvartsen/gitbrain`), then add a crontab
+Install the CLI once (`npm install -g @siggysaggy/gitbrain`), then add a crontab
 line (edit with `crontab -e`):
 
 ```cron
