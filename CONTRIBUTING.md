@@ -25,7 +25,7 @@ npm run gate    # what you and agents run before push
 git push        # the hook runs the same gate again
 ```
 
-If you installed with `npm install --ignore-scripts`, run `npm run hooks:install` yourself. `core.hooksPath` replaces `.git/hooks` for this clone; keep any extra hooks in `.githooks/`.
+If you installed with `npm install --ignore-scripts`, run `npm run hooks:install` yourself. `core.hooksPath` replaces `.git/hooks` for this clone; keep any extra hooks in `.githooks/`. If `core.hooksPath` is already set to another directory, install leaves it alone — run `npm run gate` yourself before you push.
 
 `git push --no-verify` skips the hook. Use it only when you mean to push without the gate.
 
