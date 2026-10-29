@@ -1,0 +1,32 @@
+#!/bin/sh
+# Block git push unless the local gate passes.
+# Enabled by: git config core.hooksPath .githooks
+# (npm install / npm run hooks:install). Skip once with: git push --no-verify
+
+root=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd) || exit 1
+cd "$root" || exit 1
+
+echo "gitbrain: pre-push hook — npm run gate"
+
+run_gate() {
+  if command -v npm >/dev/null 2>&1; then
+    npm run --silent gate
+    return $?
+  fi
+  if command -v npm.cmd >/dev/null 2>&1; then
+    cmd.exe //d //s //c "npm run --silent gate"
+    return $?
+  fi
+  echo "gitbrain: npm not found on PATH. Install Node >= 20, then npm install." >&2
+  return 127
+}
+
+run_gate
+status=$?
+if [ "$status" -ne 0 ]; then
+  echo "gitbrain: pre-push gate failed (exit ${status}). Push aborted." >&2
+  echo "gitbrain: fix and re-run: npm run gate" >&2
+  echo "gitbrain: bypass once: git push --no-verify" >&2
+  exit "$status"
+fi
+exit 0

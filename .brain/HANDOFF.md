@@ -4,20 +4,7 @@
 > keep it under a screenful. Detail belongs in CONTEXT.md or DECISIONS.md.
 
 - **Date:** 2026-10-25
-- **What we did:** Closed out the publish. Verified `@siggysaggy/gitbrain` is LIVE on
-  npm (0.3.0 + 0.3.1, 24 Oct — the earlier "stuck staged / 404" note was written
-  mid-troubleshooting and resolved). Fixed the red CI on all six matrix jobs:
-  `src/version.ts` was still 0.3.0 after the 0.3.1 bump. Updated README and
-  `docs/scheduling.md` install lines to `npm install -g @siggysaggy/gitbrain`, cleaned
-  the contradictory ROADMAP Blockers text, recorded D-0010 (npm identity) and
-  superseded D-0001. Smoke-tested the published package from the registry: install
-  and `brain init` work.
-- **Where we stopped:** Roadmap is 100% ticked. One commit sits locally, unpushed
-  (CI-fix + follow-through), awaiting Harald's push — it turns main's CI green.
-- **Next steps:** Harald: push `main` (one commit ahead). Optional: upload
-  `docs/social-preview.jpg` in repo Settings → Social preview (still not uploaded).
-  Next release (whenever it is) should carry the version sync; note that the
-  published 0.3.1 reports `--version 0.3.0` — cosmetic, fixed on main.
-- **Open threads:** Launch itself (Show HN / r/ClaudeCode posts) — Harald's call;
-  repo currently has 0 stars, nothing has been announced. The daily build cron has
-  no roadmap units left; repurpose (e.g. `brain heal` across real projects) or pause.
+- **What we did:** Added a local pre-push gate so typecheck + vitest run before `git push`. `npm run gate` runs `npm run check`. `.githooks/pre-push` is switched on by local `core.hooksPath=.githooks` (`prepare` / `npm run hooks:install`). Documented for humans in CONTRIBUTING.md and for agents in AGENTS.md. Recorded D-0011. Did not add a GitHub Actions workflow.
+- **Where we stopped:** Hook install and push-blocking behavior are covered by `test/local-gate.test.ts`. The existing `.github/workflows/ci.yml` matrix is unchanged.
+- **Next steps:** Review the PR. After merge, each clone needs one `npm install` (or `npm run hooks:install`) so the hook is active.
+- **Open threads:** Pull-request CI still spends Actions minutes on the OS/Node matrix. Narrowing that workflow was out of scope; the gate only moves the fast check onto the machine that is about to push.

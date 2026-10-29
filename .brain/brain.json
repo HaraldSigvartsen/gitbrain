@@ -63,6 +63,12 @@
       "title": "npm identity is @siggysaggy/gitbrain",
       "status": "active",
       "updated": "2026-10-25"
+    },
+    {
+      "id": "D-0011",
+      "title": "Local pre-push gate, not more GitHub Actions",
+      "status": "active",
+      "updated": "2026-10-25"
     }
   ],
   "observations": [
