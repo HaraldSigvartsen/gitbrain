@@ -37,4 +37,23 @@ if (code !== 0) {
   process.exit(code);
 }
 
+// Rust memory engine (crates/gitbrain-mem): run its tests when cargo is available.
+const rustManifest = join(root, "crates", "gitbrain-mem", "Cargo.toml");
+if (existsSync(rustManifest) && process.env.GITBRAIN_SKIP_RUST !== "1") {
+  const probe = spawnSync("cargo", ["--version"], { stdio: "ignore" });
+  if (probe.error || probe.status !== 0) {
+    console.log("gitbrain: cargo not found, skipping crates/gitbrain-mem tests.");
+  } else {
+    console.log("gitbrain: local gate — crates/gitbrain-mem (cargo test)");
+    const rust = spawnSync("cargo", ["test", "--quiet", "--manifest-path", rustManifest], {
+      cwd: root,
+      stdio: "inherit",
+    });
+    if (rust.error || rust.status !== 0) {
+      console.error("gitbrain: gate failed in crates/gitbrain-mem. Fix it, then run: npm run gate");
+      process.exit(rust.status ?? 1);
+    }
+  }
+}
+
 console.log("gitbrain: gate passed.");
