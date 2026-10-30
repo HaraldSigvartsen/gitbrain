@@ -1,5 +1,6 @@
-//! Micro-benchmark: `cargo run --release --example bench -- [N]`
+//! Micro-benchmark: `cargo run --release --example bench -- [N] [bm25|hybrid]`
 //! Inserts N synthetic drawers in one batch, then times queries.
+//! `hybrid` needs `--features embed` (embeds every drawer with the local model).
 
 use std::time::Instant;
 
@@ -59,7 +60,15 @@ fn main() {
         .and_then(|s| s.parse().ok())
         .unwrap_or(10_000);
     let tmp = tempfile::tempdir().unwrap();
-    let p = Palace::open(tmp.path()).unwrap();
+    let hybrid = std::env::args().nth(2).as_deref() == Some("hybrid");
+    let p = if hybrid {
+        let p = Palace::open(tmp.path()).unwrap();
+        assert!(p.has_embedder(), "hybrid bench needs --features embed");
+        p
+    } else {
+        Palace::open_bm25(tmp.path()).unwrap()
+    };
+    println!("mode: {}", if hybrid { "hybrid" } else { "bm25" });
     let mut seed: u64 = 42;
     let mut rnd = || {
         seed ^= seed << 13;
@@ -130,10 +139,36 @@ fn main() {
                 wing: Some("wing3".into()),
                 room: Some("room3".into()),
                 limit: 10,
+                ..Default::default()
             },
         )
         .unwrap();
         scoped.push(t.elapsed().as_micros() as f64);
+    }
+    if hybrid {
+        let mut vec_lat = Vec::new();
+        for _ in 0..100 {
+            for q in queries {
+                let t = Instant::now();
+                p.search(
+                    q,
+                    &SearchOpts {
+                        limit: 10,
+                        mode: gitbrain_mem::SearchMode::Vector,
+                        ..Default::default()
+                    },
+                )
+                .unwrap();
+                vec_lat.push(t.elapsed().as_micros() as f64);
+            }
+        }
+        vec_lat.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        let pct = |v: &Vec<f64>, q: f64| v[((v.len() as f64 - 1.0) * q) as usize];
+        println!(
+            "vector-only search (incl. query embedding): p50 {:.0} µs, p95 {:.0} µs",
+            pct(&vec_lat, 0.5),
+            pct(&vec_lat, 0.95)
+        );
     }
     let t = Instant::now();
     let w = p.list_wings().unwrap();

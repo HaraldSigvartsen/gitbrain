@@ -74,6 +74,7 @@ fn search_can_be_scoped_to_wing_and_room() {
                 wing: Some("gitbrain".into()),
                 room: Some("pricing".into()),
                 limit: 10,
+                ..Default::default()
             },
         )
         .unwrap();

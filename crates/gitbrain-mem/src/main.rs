@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use gitbrain_mem::{default_dir, NewDrawer, Palace, SearchOpts};
+use gitbrain_mem::{default_dir, NewDrawer, Palace, SearchMode, SearchOpts};
 
 /// Local shared memory for AI agents: wings, rooms and verbatim drawers.
 #[derive(Parser)]
@@ -37,6 +37,9 @@ enum Cmd {
         room: Option<String>,
         #[arg(short = 'n', long, default_value_t = 10)]
         limit: usize,
+        /// auto (hybrid when built with the embed feature), bm25, vector, hybrid
+        #[arg(long, default_value = "auto")]
+        mode: SearchMode,
         /// Print JSON instead of text
         #[arg(long)]
         json: bool,
@@ -82,9 +85,18 @@ fn main() -> Result<()> {
             wing,
             room,
             limit,
+            mode,
             json,
         } => {
-            let hits = palace.search(&query, &SearchOpts { wing, room, limit })?;
+            let hits = palace.search(
+                &query,
+                &SearchOpts {
+                    wing,
+                    room,
+                    limit,
+                    mode,
+                },
+            )?;
             if json {
                 println!("{}", serde_json::to_string_pretty(&hits)?);
             } else if hits.is_empty() {

@@ -131,7 +131,7 @@ optional `brain lint` session-end hook, and a worked example: [docs/agents.md](d
 
 ## Shared memory engine (experimental)
 
-[`crates/gitbrain-mem`](crates/gitbrain-mem/README.md) is a Rust memory store that every agent on a machine can share through one MCP server: wings per person or project, rooms per topic, drawers with the original text, BM25 search, all local with no API keys. It is not part of the npm package yet.
+[`crates/gitbrain-mem`](crates/gitbrain-mem/README.md) is a Rust memory store that every agent on a machine can share through one MCP server: wings per person or project, rooms per topic, drawers with the original text, BM25 search with optional local hybrid (BM25 + multilingual embeddings) search, all local with no API keys. It is not part of the npm package yet.
 
 ## Compared to existing tools
 

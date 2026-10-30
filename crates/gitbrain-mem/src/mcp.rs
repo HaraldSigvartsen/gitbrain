@@ -30,14 +30,15 @@ pub fn tools() -> Value {
         },
         {
             "name": "memory_search",
-            "description": "Full-text (BM25) search over stored memory. Returns the original text of the best-matching drawers.",
+            "description": "Search stored memory (BM25, plus local embeddings when available). Returns the original text of the best-matching drawers.",
             "inputSchema": {
                 "type": "object",
                 "properties": {
                     "query": {"type": "string"},
                     "wing": {"type": "string", "description": "Only search this wing."},
                     "room": {"type": "string", "description": "Only search this room."},
-                    "limit": {"type": "integer", "minimum": 1, "maximum": 200, "default": 10}
+                    "limit": {"type": "integer", "minimum": 1, "maximum": 200, "default": 10},
+                    "mode": {"type": "string", "enum": ["auto", "bm25", "vector", "hybrid"], "default": "auto", "description": "auto = hybrid (BM25 + local embeddings) when available, else BM25."}
                 },
                 "required": ["query"]
             }
@@ -80,6 +81,7 @@ fn call_tool(p: &Palace, name: &str, args: &Value) -> anyhow::Result<Value> {
                 wing: str_arg(args, "wing"),
                 room: str_arg(args, "room"),
                 limit: args.get("limit").and_then(Value::as_u64).unwrap_or(10) as usize,
+                mode: str_arg(args, "mode").unwrap_or_default().parse()?,
             };
             Ok(serde_json::to_value(p.search(&q, &opts)?)?)
         }

@@ -11,7 +11,7 @@
 | `src/git/`              | Git via `execFile("git", …)`. `diff.ts` collects change sets; `commit-brain.ts` optionally commits heal output (`.brain/` only). |
 | `src/heal/`             | Drift detection (`detect.ts`) and application (`apply.ts`). Never mutates anything outside `.brain/`. |
 | `src/llm/`              | Optional `--summarize` for `heal` / `ask` (OpenAI-compatible HTTP, env keys only). |
-| `crates/gitbrain-mem/`  | Experimental Rust shared-memory engine: palace (wing/room/drawer), tantivy BM25, CLI and MCP stdio server. Separate from the npm package. |
+| `crates/gitbrain-mem/`  | Experimental Rust shared-memory engine: palace (wing/room/drawer), tantivy BM25 plus optional fastembed hybrid search, CLI and MCP stdio server. Separate from the npm package. |
 
 ## Data flow
 

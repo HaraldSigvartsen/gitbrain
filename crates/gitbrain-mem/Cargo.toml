@@ -11,7 +11,14 @@ publish = false
 name = "gitbrain-mem"
 path = "src/main.rs"
 
+[features]
+default = []
+# Local multilingual embeddings (fastembed / ONNX Runtime) for hybrid search.
+# Downloads the model (~470 MB) on first use into ~/.gitbrain/models.
+embed = ["dep:fastembed"]
+
 [dependencies]
+fastembed = { version = "7.5", optional = true, default-features = false, features = ["ort-download-binaries-rustls-tls", "hf-hub-rustls-tls"] }
 anyhow = "1"
 clap = { version = "4", features = ["derive", "env"] }
 serde = { version = "1", features = ["derive"] }
