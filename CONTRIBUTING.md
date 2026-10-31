@@ -29,7 +29,9 @@ If you installed with `npm install --ignore-scripts`, run `npm run hooks:install
 
 `git push --no-verify` skips the hook. Use it only when you mean to push without the gate.
 
-Agents: run `npm run gate` and get a clean pass before every push. Do not add a GitHub Actions workflow as a substitute — the existing CI workflow stays, and new hosted checks are out of scope. See [AGENTS.md](AGENTS.md).
+On pull requests, CI runs the same `npm run check` on Linux and Node 22 only. The full Linux/macOS/Windows × Node 20/22 matrix is the manual **Cross-platform** workflow (Actions → Cross-platform → Run workflow), used before releases.
+
+Agents: run `npm run gate` and get a clean pass before every push. Do not add a GitHub Actions workflow as a substitute — the local gate is the main check, and new hosted checks are out of scope. See [AGENTS.md](AGENTS.md).
 
 ## What to work on
 
