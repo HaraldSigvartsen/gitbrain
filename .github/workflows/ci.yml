@@ -1,22 +1,29 @@
 name: CI
 
+# Light PR check: typecheck + tests on Linux / Node 22 (same as `npm run check`).
+# The full OS x Node matrix runs on demand: Actions > Cross-platform > Run workflow.
 on:
-  push:
-    branches: [main]
   pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   check:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        node-version: [20, 22]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
+          cache: npm
       - run: npm ci
       - run: npm run check
